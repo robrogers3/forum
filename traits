@@ -1,0 +1,8 @@
+<?php
+namespace App\Traits;
+trait ModelPath {
+    public function path()
+    {
+        return str_plural(strtolower(class_basename($this))) . '/' . $this->id;
+    }    
+}
