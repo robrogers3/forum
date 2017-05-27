@@ -21,13 +21,14 @@ class ThreadsController extends Controller
     public function index(Channel $channel, ThreadFilters $filters)
     {
         $threads = $this->getThreads($channel, $filters);
-
+	
         if (request()->wantsJson()) {
             return $threads->get();
         }
+	
         //$threads = $threads->get();
         $threads = $threads->paginate(10);
-        return view('threads.index', compact('threads'));
+        return view('threads.index', ['threads' => $threads, 'channel' => $channel->exists ? $channel : null]);
     }
 
     /**
@@ -107,9 +108,24 @@ class ThreadsController extends Controller
      * @param  \App\Thread $thread
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Thread $thread)
+    public function destroy($channel, Thread $thread)
     {
-        //
+        $this->authorize('update', $thread);
+        // if ($thread->creator->id != auth()->id()) {
+        //     if (request()->wantsJson()) {
+        //         return response([], 403);
+        //     }
+
+        //     abort(403, 'You do not have permissions to delete me!');
+        // }
+
+        $thread->delete();
+
+        if (request()->wantsJson()) {
+            return response([], 200);
+        }
+
+         return redirect('/threads');
     }
 
     protected function getThreads(Channel $channel, $filters)

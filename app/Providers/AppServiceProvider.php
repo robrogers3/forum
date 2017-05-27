@@ -16,10 +16,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         \View::composer('*', function ($view) {
-            $channels = Cache::rememberForever('channels', function () {
-                return Channel::all();
-            });
-
+            static $channels;
+            if (empty($channels)) {
+                $channels = Channel::orderBy('name')->get();
+            }
             $view->with('channels', $channels);
         });
     }

@@ -4,7 +4,18 @@
     <div class="row">
         <div class="col-md-8">
             <div class="panel panel-info">
-                <div class="panel-heading">{{$thread->creator->name}} posted {{$thread->title}} on {{$thread->created_at->diffForHumans()}}</div>
+                <div class="panel-heading">
+                     <div class="level">
+                        <h4 class="flex">{{$thread->title}}</h4>
+                        @can ('update', $thread)
+                        <form method="POST" action="{{$thread->path()}}">
+                        {{csrf_field()}}
+                        {{method_field('delete')}}
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                        @endcan
+                    </div>
+                 </div>
                 <div class="panel-body">
                     <div class="body">{{$thread->body}}</div>
                 </div>
@@ -13,6 +24,7 @@
             @include('threads.reply')
             @endforeach
             {{$replies->links()}}
+
             @if(auth()->check())
             <form action="{{$thread->path()}}/replies" method="POST">
                 {{csrf_field()}}
@@ -22,9 +34,8 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
-            @else
-            <p class="text-center">Please login</p>
             @endif
+
         </div>
         <div class="col-md-4">
             <div class="panel panel-info">

@@ -50,7 +50,10 @@ class Handler extends ExceptionHandler
 
         if (config('app.debug')) {
             if (is_a($exception, 'Illuminate\Validation\ValidationException') ||
-                is_a($exception, 'Illuminate\Auth\AuthenticationException')) {
+                is_a($exception, 'Illuminate\Auth\AuthenticationException') ||
+                is_a($exception, '\Symfony\Component\HttpKernel\Exception\HttpException') ||
+                is_a($exception, 'Illuminate\Auth\Access\AuthorizationException')
+            ) {
                 return parent::render($request, $exception);
             }
 
