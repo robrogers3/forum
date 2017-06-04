@@ -13,14 +13,15 @@
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <style>
-        .level {
-            display: flex;
-            align-items: center;
-            _justify-content: flex-start;
-        }
-        .flex {
-            flex: 1;
-        }
+     .level {
+         display: flex;
+         align-items: center;
+         _justify-content: flex-start;
+     }
+     .flex {
+         flex: 1;
+     }
+     .mr-1 {margin-right: 1em;}
     </style>
     <!-- Scripts -->
     <script>
@@ -31,13 +32,17 @@
     </head>
     <body>
         <div id="app">
-        <!-- nav -->
-        @include('layouts.nav')
-    @yield('content')
-</div>
+            <!-- nav -->
+            @include('layouts.nav')
 
-<!-- Scripts -->
+	    <div class="container">
+		<flash message="{{session('flash')}}"></flash>
+		@yield('content')
+	    </div>
+	</div>
 
-</body>
-<script src="{{ asset('js/app.js') }}"></script>
+	<!-- Scripts -->
+	
+    </body>
+    <script src="{{ asset('js/app.js') }}"></script>
 </html>

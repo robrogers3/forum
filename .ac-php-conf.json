@@ -1,5 +1,5 @@
 {
-  "use-cscope": null,
+  "use-cscope": nil,
   "filter": {
     "php-file-ext-list": [
       "php"

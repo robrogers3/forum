@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+
+use Illuminate\Support\Facades\Session;
 use App\Thread;
 use App\Channel;
 use App\Filters\ThreadFilters;
@@ -13,6 +15,7 @@ class ThreadsController extends Controller
     {
         $this->middleware('auth')->except(['index', 'show']);
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -28,7 +31,9 @@ class ThreadsController extends Controller
 	
         //$threads = $threads->get();
         $threads = $threads->paginate(10);
-        return view('threads.index', ['threads' => $threads, 'channel' => $channel->exists ? $channel : null]);
+
+        return view('threads.index',
+                    ['threads' => $threads, 'channel' => $channel->exists ? $channel : null]);
     }
 
     /**
@@ -53,16 +58,16 @@ class ThreadsController extends Controller
             'title' => 'required',
             'body' => 'required',
             'channel_id' => 'required|exists:channels,id'
-            ]);
+        ]);
 
         $thread = Thread::create([
             'user_id' => auth()->id(),
             'channel_id' => request('channel_id'),
             'title' => request('title'),
             'body'  => request('body')
-            ]);
+        ]);
 
-        return redirect($thread->path());
+        return redirect($thread->path())->with('flash','Your thread has been posted.<');
     }
 
     /**
@@ -76,7 +81,7 @@ class ThreadsController extends Controller
         return view('threads.show', [
             'thread' => $thread,
             'replies' => $thread->replies()->paginate(20)
-            ]);
+        ]);
     }
 
     /**
@@ -111,13 +116,7 @@ class ThreadsController extends Controller
     public function destroy($channel, Thread $thread)
     {
         $this->authorize('update', $thread);
-        // if ($thread->creator->id != auth()->id()) {
-        //     if (request()->wantsJson()) {
-        //         return response([], 403);
-        //     }
 
-        //     abort(403, 'You do not have permissions to delete me!');
-        // }
 
         $thread->delete();
 
@@ -125,7 +124,7 @@ class ThreadsController extends Controller
             return response([], 200);
         }
 
-         return redirect('/threads');
+        return redirect('/threads');
     }
 
     protected function getThreads(Channel $channel, $filters)

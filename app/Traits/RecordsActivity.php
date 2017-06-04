@@ -12,11 +12,15 @@ trait RecordsActivity
             return;
         }
         
-        static::created(function ($event) {
-             $event->recordActivity($event);
+        static::created(function ($model) {
+             $model->recordActivity($model);
+        });
+
+        static::deleting(function ($model) {
+            $model->activity->each->delete();
         });
     }
-
+    
     protected function recordActivity($event)
     {
             $this->activity()->create([
@@ -32,14 +36,8 @@ trait RecordsActivity
 
     protected function getActivityType($event)
     {
-        $type = $this->fred();
-    }
-
-    private function fred()
-    {
         $type = strtolower((new \ReflectionClass($this))->getShortName());
         return 'create_' . $type;
-
-        return $type;
     }
+
 }

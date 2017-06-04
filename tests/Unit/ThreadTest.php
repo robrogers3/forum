@@ -15,7 +15,9 @@ class ThreadTest extends TestCase
     public function setUp()
     {
         parent::setUp();
+
         $this->thread = create('App\Thread');
+        
     }
 
     /** @test */
@@ -40,6 +42,7 @@ class ThreadTest extends TestCase
     /** @test */
     public function a_thread_can_add_a_reply()
     {
+        \App\Reply::truncate();
         $this->thread->addReply([
             'body' => 'Foobar',
             'user_id' => 1
@@ -48,9 +51,11 @@ class ThreadTest extends TestCase
         $this->assertCount(1, $this->thread->replies);
     }
 
-    /** test */
+    /** @test */
     public function a_thread_belongs_to_a_channel()
     {
+        \App\Thread::truncate();
+        
         $thread = make('App\Thread');
 
         $this->assertInstanceOf('App\Channel', $thread->channel);

@@ -63,6 +63,13 @@
                 margin-bottom: 30px;
             }
         </style>
+	<script>
+         // rename myToken as you like
+	 window.Laravel = {};
+         window.Laravel.csrfToken =  <?php echo json_encode([
+             'csrfToken' => csrf_token(),
+         ]); ?>
+        </script>
     </head>
     <body>
         <div class="flex-center position-ref full-height">
@@ -77,11 +84,11 @@
                 </div>
             @endif
 
-            <div class="content">
+            <div class="content" id="app">
                 <div class="title m-b-md">
                     Laravel
                 </div>
-
+		<example></example>
                 <div class="links">
                     <a href="https://laravel.com/docs">Documentation</a>
                     <a href="https://laracasts.com">Laracasts</a>
@@ -92,4 +99,6 @@
             </div>
         </div>
     </body>
+    <script src="{{ asset('js/app.js') }}"></script>
+
 </html>

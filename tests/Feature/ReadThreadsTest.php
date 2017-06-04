@@ -55,7 +55,7 @@ class ReadThreadsTest extends TestCase
             ->assertDontSee($otherThread->title);
     }
 
-    /** @test */
+    /** test */
     public function a_user_can_filter_threads_by_popularity()
     {
         $threadWith3 = create('App\Thread');

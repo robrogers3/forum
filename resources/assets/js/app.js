@@ -14,9 +14,16 @@ window.Vue = require('vue');
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
+window.events = new Vue();
 
-Vue.component('example', require('./components/Example.vue'));
+window.flash = function (message) {
+    window.events.$emit('flash', message);
+};
 
+Vue.component('flash', require('./components/Flash.vue'));
+Vue.component('reply', require('./components/Reply.vue'));
+Vue.component('favorite', require('./components/Favorite.vue'));
 const app = new Vue({
     el: '#app'
 });
+
