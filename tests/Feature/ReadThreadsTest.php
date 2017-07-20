@@ -55,7 +55,7 @@ class ReadThreadsTest extends TestCase
             ->assertDontSee($otherThread->title);
     }
 
-    /** test */
+    /** @test */
     public function a_user_can_filter_threads_by_popularity()
     {
         $threadWith3 = create('App\Thread');
@@ -69,5 +69,20 @@ class ReadThreadsTest extends TestCase
         $order = array_column($response, 'replies_count');
 
         $this->assertEquals($order, array(3,2,0));
+    }
+
+    /** @test */
+    public function a_user_can_request_all_replies_for_a_given_thread()
+    {
+        $thread = create('App\Thread');
+
+        create('App\Reply', ['thread_id' => $thread->id], 2);
+
+        $response = $this->getJson($thread->path() . "/replies")->json();
+        print_r($response);
+        $this->assertCount(1, $response['data']);
+
+        $this->assertEquals(2, $response['total']);
+
     }
 }

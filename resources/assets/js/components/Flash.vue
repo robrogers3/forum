@@ -1,7 +1,7 @@
 <template>
   <div class="content" v-show=show>
-    <div class="alert alert-danger">
-      {{body}} !!!
+    <div class="flash alert alert-danger">
+      {{body}}
     </div>
   </div>
 </template>
@@ -28,7 +28,7 @@
 	    flash(message) {
 		this.body = message;
 		this.show = true;
-		this.hide();
+//		this.hide();
 	    },
 	    hide() {
 		setTimeout(() => {
@@ -40,5 +40,10 @@
 </script>
 
 <style scoped>
-  
+ .flash {
+     bottom: 5px;
+     right: 5px;
+     position: fixed;
+     max-width: 500px;
+ }
 </style>

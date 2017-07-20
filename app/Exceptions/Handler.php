@@ -44,21 +44,36 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+
         if (app()->environment() == 'testing') {
-        //            throw $exception;
+            throw $exception;
         }
 
-        if (config('app.debug')) {
-            if (is_a($exception, 'Illuminate\Validation\ValidationException') ||
-                is_a($exception, 'Illuminate\Auth\AuthenticationException') ||
-                is_a($exception, '\Symfony\Component\HttpKernel\Exception\HttpException') ||
-                is_a($exception, 'Illuminate\Auth\Access\AuthorizationException')
-            ) {
-                return parent::render($request, $exception);
-            }
+        if (false && config('app.debug')) {
+            // if (false && is_a($exception, 'Illuminate\Validation\ValidationException') ||
+            //     is_a($exception, 'Illuminate\Auth\AuthenticationException') ||
+            //     is_a($exception, '\Symfony\Component\HttpKernel\Exception\HttpException') ||
+            //     is_a($exception, 'Illuminate\Auth\Access\AuthorizationException')
+            // ) {
+            //     return parent::render($request, $exception);
+            // }
 
             $whoops = new \Whoops\Run;
-            $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+
+            if (request()->wantsJson()) {
+                $whoops->pushHandler(new \Whoops\Handler\JsonResponseHandler);
+            } else {
+                $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+            }
+
+            try {
+                $code = $exception->getStatusCode();
+            } catch (\Exception $e) {
+                $code = 422;
+            }
+            
+            $whoops->sendHttpCode($code);
+            
             return $whoops->handleException($exception);
         }
 

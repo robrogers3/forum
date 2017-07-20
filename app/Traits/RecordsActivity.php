@@ -13,7 +13,7 @@ trait RecordsActivity
         }
         
         static::created(function ($model) {
-             $model->recordActivity($model);
+            $model->recordActivity($model);
         });
 
         static::deleting(function ($model) {
@@ -23,10 +23,10 @@ trait RecordsActivity
     
     protected function recordActivity($event)
     {
-            $this->activity()->create([
-                'type' => $this->getActivityType($event),
-                'user_id' => auth()->id()
-                ]);
+        $this->activity()->create([
+            'type' => $this->getActivityType($event),
+            'user_id' => auth()->id()
+        ]);
     }
 
     public function activity()
@@ -37,6 +37,7 @@ trait RecordsActivity
     protected function getActivityType($event)
     {
         $type = strtolower((new \ReflectionClass($this))->getShortName());
+
         return 'create_' . $type;
     }
 

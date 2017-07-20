@@ -83,7 +83,11 @@
                     @endif
                 </div>
             @endif
-
+	    @if (session('notice'))
+		<div class="alert alert-success">
+		    {{ session('notice') }}
+		</div>
+	    @endif
             <div class="content" id="app">
                 <div class="title m-b-md">
                     Laravel

@@ -12,23 +12,25 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/threads');
 });
 
 
-Route::get('/profiles/{user}', 'ProfilesController@show');
+Route::get('/profiles/{user}', 'ProfilesController@show')->name('profile');
+Route::get('/profiles/{user}/notifications', 'UserNotificationsController@index')->name('profile');
+Route::delete('/profiles/{user}/notifications/{notificaton}', 'UserNotificationsController@destroy')->name('profile');
 
 Route::get('/threads/', 'ThreadsController@index');
 Route::get('/threads/create', 'ThreadsController@create');
-
 Route::post('/threads', 'ThreadsController@store');
 Route::get('/threads/{channel}', 'ThreadsController@index');
 Route::delete('/threads/{channel}/{thread}', 'ThreadsController@destroy');
 Route::get('/threads/{channel}/{thread}', 'ThreadsController@show');
+Route::post('/threads/{channel}/{thread}/subscribe', 'ThreadSubscriptionsController@store')->middleware('auth');
+Route::delete('/threads/{channel}/{thread}/subscribe', 'ThreadSubscriptionsController@destroy')->middleware('auth');
 
-//Route::resource('threads', 'ThreadsController');
-
-Route::post('/threads/{channel}/{thread}/replies', 'RepliesController@store');
+Route::post('/threads/{channel}/{thread}/replies', 'RepliesController@store')->middleware('throttle:15,1');
+Route::get('/threads/{channel}/{thread}/replies', 'RepliesController@index');
 Route::patch('/reply/{reply}', 'RepliesController@update');
 Route::delete('/reply/{reply}', 'RepliesController@destroy');
 Route::post('/reply/{reply}/favorites', 'FavoritesController@store');

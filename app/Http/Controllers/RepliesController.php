@@ -10,7 +10,7 @@ class RepliesController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except('index');
     }
 
     /**
@@ -18,9 +18,9 @@ class RepliesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($channel, Thread $thread)
     {
-        //
+        return $thread->replies()->paginate(100);
     }
 
     /**
@@ -45,13 +45,17 @@ class RepliesController extends Controller
             'body' => 'required'
             ]
         );
-        $thread->addReply(
+        $reply = $thread->addReply(
             [
                 'body' => request('body'),
                 'user_id' => auth()->id()
             ]
         );
 
+        if (request()->wantsJson()) {
+            return $reply->load('owner');
+        }
+        
         return back();
     }
 

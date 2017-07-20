@@ -36,10 +36,11 @@ class CreateThreadsTest extends TestCase
         $this->post('/threads', $thread->toArray());
     }
 
+    /** @test */
     public function guests_cannot_see_the_create_threads_page()
     {
-        $this->withExceptionHandling()
-            ->get('/threads/create/')
+        $this->withExceptionHandling();
+            $this->get('/threads/create/')
             ->assertRedirect('/login');
     }
 
@@ -61,7 +62,7 @@ class CreateThreadsTest extends TestCase
         $this->signIn();
 
         $this->publishThread(['body' => null])
-            ->assertSessionHasErrors('body');
+                                     ->assertSessionHasErrors('body');
     }
 
     /** @test */
@@ -74,8 +75,7 @@ class CreateThreadsTest extends TestCase
 
         $response = $this->publishThread(['channel_id' => $channel->id]);
     }
-
-
+    //http://g.co/doodle/wwsn9m
     public function publishThread($overrides = [])
     {
         $this->withExceptionHandling()->signIn();

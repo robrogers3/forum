@@ -25,10 +25,14 @@
     </style>
     <!-- Scripts -->
     <script>
-        window.Laravel = {!! json_encode([
-            'csrfToken' => csrf_token(),
-            ]) !!};
-        </script>
+     window.Laravel = {!!
+			 json_encode([
+			     'csrfToken' => csrf_token(),
+			     'signedIn' => Auth::check(),
+			     'user' => auth()->user()
+			 ]);
+		      !!};
+    </script>
     </head>
     <body>
         <div id="app">

@@ -117,6 +117,7 @@ class ManageThreadsTest extends TestCase
         $this->delete($thread->path())->assertStatus(403);
     }
 
+    /** @test */
     public function publishThread($overrides = [])
     {
         $this->withExceptionHandling()->signIn();

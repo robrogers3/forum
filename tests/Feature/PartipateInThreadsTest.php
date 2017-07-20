@@ -11,36 +11,30 @@ class ParticipateInForumTest extends TestCase
 {
     use DataBaseMigrations;
 
+
     /** @test */
-    public function an_authenticated_user_can_participate_in_forum_threads()
+    function unauthenticated_users_may_not_add_replies()
+    {
+        $this->withExceptionHandling()
+            ->post('/threads/some-channel/1/replies', [])
+            ->assertRedirect('/login');
+    }
+
+    /** @test */
+    function an_authenticated_user_may_participate_in_forum_threads()
     {
         $this->signIn();
 
-        $thread = factory('App\Thread')->create();
+        $thread = create('App\Thread');
+        $reply = make('App\Reply');
 
-        $reply = make('App\Reply');//->make();
+        $this->post($thread->path() . '/replies', $reply->toArray());
 
-        $this->post($thread->path() .  '/replies', $reply->toArray());
-
-        $this->get($thread->path())->assertSee($reply->body);
+        $this->assertDatabaseHas('replies', ['body' => $reply->body]);
+        $this->assertEquals(1, $thread->fresh()->replies_count);
     }
 
-    /** @test */
-    public function an_unauthenticated_user_cannot_participate_in_forum_threads()
-    {
-
-        //$user = factory('App\User')->create();
-        $this->expectException('Illuminate\Auth\AuthenticationException');
-
-        $thread = factory('App\Thread')->create();
-
-        $reply = factory('App\Reply')->create();
-
-        $this->post('/threads/some-channel/ '. $thread->id . '/replies', $reply->toArray());
-
-        $this->get($thread->path())->assertSee($reply->body);
-    }
-
+    
     /** @test */
     public function a_reply_requires_a_body()
     {
