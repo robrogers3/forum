@@ -26,7 +26,6 @@
      },
      methods: {
 	 markAsRead (notification) {
-	     this.notifications = [];
 	     axios.delete("/profiles/" + window.Laravel.user.name + "/notifications/" + notification.id)
 	 }
      },

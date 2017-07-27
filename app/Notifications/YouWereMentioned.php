@@ -7,24 +7,18 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class ThreadWasUpdated extends Notification
+class YouWereMentioned extends Notification
 {
     use Queueable;
 
-    /** @var \App\Thread */
-    public $thread;
-
-    /** @var \App\Reply */
     public $reply;
     /**
      * Create a new notification instance.
      *
-     * @param \App\Thread $thread
      * @param \App\Reply  $reply
      */
-    public function __construct($thread, $reply)
+    public function __construct($reply)
     {
-        $this->thread = $thread;
         $this->reply = $reply;
     }
 
@@ -61,8 +55,9 @@ class ThreadWasUpdated extends Notification
      */
     public function toArray($notifiable)
     {
+
         return [
-            'message' => $this->reply->owner->name . ' replied to ' . $this->reply->thread->title,
+            'message' => $this->reply->owner->name . ' mentioned you in  ' . $this->reply->thread->title,
             'link' => $this->reply->path()
         ];
     }

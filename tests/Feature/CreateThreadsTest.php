@@ -36,30 +36,24 @@ class CreateThreadsTest extends TestCase
         $this->post('/threads', $thread->toArray());
     }
 
-    /** @test */
+    /** test */
     public function guests_cannot_see_the_create_threads_page()
     {
-        $this->withExceptionHandling();
-            $this->get('/threads/create/')
+        $this->withExceptionHandling()->signIn();
+        $this->get('/threads/create/')
             ->assertRedirect('/login');
     }
 
     /** @test */
     public function a_thread_requires_a_title()
     {
-        $this->withExceptionHandling();
-
-        $this->signIn();
-
         $this->publishThread(['title' => null])
             ->assertSessionHasErrors('title');
     }
     /** @test */
     public function a_thread_requires_a_body()
     {
-        $this->withExceptionHandling();
 
-        $this->signIn();
 
         $this->publishThread(['body' => null])
                                      ->assertSessionHasErrors('body');

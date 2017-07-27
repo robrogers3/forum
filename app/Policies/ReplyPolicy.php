@@ -30,7 +30,7 @@ class ReplyPolicy
      */
     public function create(User $user)
     {
-        //
+        return true;
     }
 
     /**
@@ -42,6 +42,7 @@ class ReplyPolicy
      */
     public function update(User $user, Reply $reply)
     {
+        return false;
         return $user->id == $reply->user_id;
     }
 
@@ -54,6 +55,7 @@ class ReplyPolicy
      */
     public function delete(User $user, Reply $reply)
     {
-        //
+        return false;
+        return $user->id == $reply->user_id;        //
     }
 }

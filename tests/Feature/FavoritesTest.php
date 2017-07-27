@@ -13,9 +13,11 @@ class FavoritesTest extends TestCase
     /** @test */
     public function an_unauthenticed_user_cannot_favorite_anything()
     {
-        $this->withExceptionHandling()
-            ->post('/reply/1/favorites')
-            ->assertRedirect('/login');
+        $this->withExceptionHandling();
+            
+        $response = $this->json('POST', '/reply/1/favorites')->json();
+        
+        $this->assertArrayHasKey('error',$response);
     }
 
     /** @test */

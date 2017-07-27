@@ -10,11 +10,15 @@
                             <div class="level">
 				<h4 class="flex">
                                     <a href="{{$thread->path()}}">
-					{{$thread->title}}
+					@if ($thread->hasUpdatesFor(auth()->user()))
+					    <strong>{{$thread->title}}<strong>
+					@else
+						{{$thread->title}}
+					@endif
                                     </a>
 				</h4>
 				<strong>
-                                    {{$thread->replies_count}} {{str_plural('reply', $thread->replies_count)}}
+                                   {{$thread->replies_count}} {{str_plural('reply', $thread->replies_count)}}
 				</strong>
                             </div>
                             <h4>in channel <a href="{{$thread->channel->path()}}"> {{$thread->channel->name}} </a>

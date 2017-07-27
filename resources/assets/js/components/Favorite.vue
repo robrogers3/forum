@@ -12,7 +12,7 @@ export default {
     props: ['reply'],
     data() {
 	return {
-	    favorites_count: this.reply.favorites_count,
+	    favorites_count: this.reply.favoritesCount,
 	    isFavorited: this.reply.isFavorited
 	}
     },
@@ -27,7 +27,9 @@ export default {
 	},
 	unfavorite() {
 	    axios.delete(this.endpoint);
-	    this.favorites_count--;
+	    if (this.favorites_count) {
+		this.favorites_count--;
+	    }
 	    this.isFavorited = false;
 	}
     },

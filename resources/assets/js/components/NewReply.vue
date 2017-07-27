@@ -1,59 +1,84 @@
 <template>
     <div>
-        <div class="form-group">
-            <textarea class="form-control" name="body" placeholder="What have you got to say?" v-model="body" required>
-            </textarea>
+        <div v-if="signedIn">
+	    <form @submit.prevent="addReply">
+            <div class="form-group">
+                <textarea name="body"
+                          id="body"
+                          class="form-control"
+                          placeholder="Have something to say?"
+                          rows="5"
+                          _required
+                          v-model="body"></textarea>
+            </div>
+
+            <button type="submit"
+                    class="btn btn-default"
+                    click="addReply">Post</button>
+	    </form>
         </div>
-        <button type="submit" class="btn btn-primary" @click="addReply">Submit</button>
+
+        <p class="text-center" v-else>
+            Please <a href="/login">sign in</a> to participate in this
+            discussion.
+        </p>
     </div>
 </template>
+
 <script>
+ import atwho from '../mixins/mount.atwho.js';
  export default {
-     data() {
-	 return {
-	     body: ''
-	 }
+     mixins: [atwho],
+     mounted () {
+	 this.initAtWho();
      },
-     methods: {
-	 addReply() {
-	     if (!this.body.trim()) {
-		 flash('sorry')
-		 return;
-	     }
-	     let self = this;
-	     axios.post(this.endpoint, {body: this.body})
-	     	  .then(({data}) => {
-		      this.body = '';
-		      flash('reply added');
-		      this.$emit('created', data);	     
-		      console.log('adding reply');
-		  })
-		  .catch(function (error) {
-			  if (error.response) {
-			      // The request was made and the server responded with a status code
-			      // that falls out of the range of 2xx
-			      console.log(error.response);
-			      flash(error.response.data.flash);
-			      console.log(error.response.status);
-//			      console.log(error.response.headers);
-			  } else if (error.request) {
-			      // The request was made but no response was received
-			      // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-			      // http.ClientRequest in node.js
-			      console.log(error.request);
-			  } else {
-			      // Something happened in setting up the request that triggered an Error
-			      console.log('Error', error.message);
-			  }
-			  //console.log(error.config);
-		      });
-	 }
+     data() {
+         return {
+             body: ''
+         };
      },
      computed: {
-	 endpoint() {
-	     ///threads/{channel}/{thread}/replies
-	     return window.location.pathname + '/replies';
+         signedIn() {
+             return window.Laravel.signedIn;
+         }
+     },
+     methods: {
+         addReply() {
+             axios.post(location.pathname + '/reply', { body: this.body })
+	     	  .then(({data}) => {
+		      this.body = '';
+		      
+		      flash('Your reply has been posted.');
+		      
+		      this.$emit('created', data);
+		  })
+		  .catch(error => {
+		      window.E = error;
+		      if (typeof error.response.data != 'undefined') {
+			  let errors = [];
+			  Object.keys(error.response.data).forEach(key => {
+			      error.response.data[key].forEach(datum => {
+				  errors.push(datum);
+			      });});
+
+			  return flash(errors.join(', '), 'danger');
+		      }
+
+		      
+		      if (typeof error.message != 'undefined') {
+			  return flash('really ' + error.message, 'danger');
+		      }
+
+		      if (typeof error.response.data != 'undefined' && typeof error.response.data.error != 'undefined') {
+			  return flash(error.response.data.error.message, 'danger');
+		      }
+		      
+		      flash('got new clue', 'danger');
+                  })
+
 	 }
      }
- };
+ }
 </script>
+
+

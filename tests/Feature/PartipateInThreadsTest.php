@@ -15,9 +15,9 @@ class ParticipateInForumTest extends TestCase
     /** @test */
     function unauthenticated_users_may_not_add_replies()
     {
-        $this->withExceptionHandling()
-            ->post('/threads/some-channel/1/replies', [])
-            ->assertRedirect('/login');
+        $this->expectException('Illuminate\Auth\AuthenticationException');
+        
+           $this->post('/threads/some-channel/1/reply', []);
     }
 
     /** @test */
@@ -26,9 +26,8 @@ class ParticipateInForumTest extends TestCase
         $this->signIn();
 
         $thread = create('App\Thread');
-        $reply = make('App\Reply');
-
-        $this->post($thread->path() . '/replies', $reply->toArray());
+        $reply = make('App\Reply', ['body' => 'oh yes']);
+        $this->post($thread->path() . '/reply', $reply->toArray());
 
         $this->assertDatabaseHas('replies', ['body' => $reply->body]);
         $this->assertEquals(1, $thread->fresh()->replies_count);
@@ -38,32 +37,30 @@ class ParticipateInForumTest extends TestCase
     /** @test */
     public function a_reply_requires_a_body()
     {
-        $this->withExceptionHandling()->signIn();
+        $this->signIn();
 
+        $this->expectException('Illuminate\Validation\ValidationException');
+        
         $thread = create('App\Thread');
 
         $reply = make('App\Reply', ['body' => null]);
 
-        $this->post($thread->path() . '/replies', $reply->toArray())
+        $this->post($thread->path() . '/reply', $reply->toArray())
             ->assertSessionHasErrors('body');
     }
 
     /** @test */
     public function unauthorized_users_cannot_delete_a_reply()
     {
-        $this->withExceptionHandling();
-        
-        $reply = create('App\Reply');
 
-        $this->delete("/reply/{$reply->id}")->assertRedirect('/login');
-
-        $reply = create('App\Reply');
-        
+        //$this->withExceptionHandling();
         $this->signIn();
         
-        $this->delete("/reply/{$reply->id}")
-            ->assertStatus(403);
-
+        $reply = create('App\Reply');
+        
+        $this->expectException('Exception');
+        
+        $this->delete("/reply/{$reply->id}");
     }
 
     /** @test */
@@ -73,7 +70,7 @@ class ParticipateInForumTest extends TestCase
 
         $reply = create('App\Reply', ['user_id' => auth()->id()]);
 
-        $this->delete("/reply/{$reply->id}")->assertStatus(302);
+        $this->delete("/reply/{$reply->id}")->assertStatus(200);
         
         $this->assertDatabaseMissing('replies', ['id' => $reply->id]);
     }
@@ -90,5 +87,23 @@ class ParticipateInForumTest extends TestCase
         $this->patch("/reply/{$reply->id}", ['body' => $body]);
 
         $this->assertDatabaseHas('replies', ['id' => $reply->id, 'body' => $body]);
+    }
+
+    /** @test */
+    public function replies_that_are_spam_cannot_be_created()
+    {
+        $this->signIn();
+
+        $this->withExceptionHandling();
+
+        $thread = create('App\Thread');
+
+        $reply = create('App\Reply', [
+            'body' => 'Yahoo Customer Support'
+        ]);
+
+        //$this->expectException('Illuminate\Validation\ValidationException');
+        
+        $this->json('POST',$thread->path() . '/reply', $reply->toArray())->assertStatus(422);
     }
 }

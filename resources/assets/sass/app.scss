@@ -7,3 +7,27 @@
 
 // Bootstrap
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+.level {
+    display: flex;
+    align-items: center;
+    _justify-content: flex-start;
+}
+.flex {
+    flex: 1;
+}
+.mr-1 {margin-right: 1em;}
+// Mixin
+@mixin text-overflow {
+    _overflow: hidden;
+    text-overflow: ellipsis;
+    _white-space: nowrap;
+}
+.flash {
+    @include text-overflow
+    bottom: 5px;
+    right: 5px;
+    position: fixed;
+    display: inline-block;
+    max-width: 500px;
+    word-wrap: wrap;
+}

@@ -5,6 +5,8 @@ namespace App\Providers;
 use Cache;
 use App\Channel;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,6 +17,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        DB::listen(function ($query) {
+            //Log::info(__METHOD__, [$query->sql, $query->bindings]);
+            // $query->sql
+            // $query->bindings
+            // $query->time
+        });
         \View::composer('*', function ($view) {
             static $channels;
             if (empty($channels)) {
@@ -22,6 +30,8 @@ class AppServiceProvider extends ServiceProvider
             }
             $view->with('channels', $channels);
         });
+
+        \Validator::extend('spamfree', 'App\Rules\SpamFree@passes');
     }
 
     /**

@@ -3,9 +3,10 @@
 namespace App;
 
 use App\Traits\ModelPath;
+use App\Notifications\YouWereMentioned;
 use App\Traits\RecordsActivity;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Support\Facades\Log;
 class Reply extends Model
 {
     use ModelPath;
@@ -18,17 +19,22 @@ class Reply extends Model
 
     protected $appends = ['favoritesCount', 'isFavorited'];
 
-    /**
-     * Boot the reply instance.
-     */
+    //    protected $touches = ['thread'];
+
     protected static function boot()
     {
         parent::boot();
+
         static::created(function ($reply) {
-            $reply->thread->increment('replies_count');
+            //$reply->thread->increment('replies_count');
+            $reply->thread->replies_count = $reply->thread->replies_count + 1;
+            $reply->thread->save();
         });
+
         static::deleted(function ($reply) {
-            $reply->thread->decrement('replies_count');
+            //$reply->thread->decrement('replies_count');
+            $reply->thread->replies_count = $reply->thread->replies_count - 1;
+            $reply->thread->save();
         });
     }
 
@@ -46,4 +52,10 @@ class Reply extends Model
         return $this->thread->path() . "#reply-{$this->id}";
     }
 
+    public function mentionedUsers()
+    {
+        preg_match_all('/\@([^\s\.]+)/', $this->body, $matches);
+
+        if ($matches)  return $matches[1];
+    }
 }

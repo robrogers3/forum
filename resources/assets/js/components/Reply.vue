@@ -1,81 +1,96 @@
 <template>
-    <div :id="`reply-${id}`" class="panel panel-default">
+    <div :id="'reply-'+id" class="panel panel-default">
 	<div class="panel-heading">
-            <div class="level">
+	    <div class="level">
 		<h5 class="flex">
-		    <a :href="`/profiles/${reply.owner.name}`" v-text="reply.owner.name"></a>
-		    <span v-text="ago"></span>
+		    <a :href="'/profiles/'+data.owner.name"
+		       v-text="data.owner.name">
+		    </a> said <span v-text="ago"></span>
 		</h5>
-		<div v-show="signedIn">
-		<favorite :reply="data"></favorite>
+
+		<div v-if="signedIn">
+		    <favorite :reply="data"></favorite>
 		</div>
-            </div>
+	    </div>
 	</div>
+
 	<div class="panel-body">
 	    <div v-show="editing">
-		<div class="form-group">
-		    <textarea class="form-control" v-model="body"></textarea>
-		</div>
-		<div v-if="canUpdate">
-		    <button class="btn btn-xs btn-primary mr-1" @click="update">Update</button>
-		    <button class="btn btn-xs btn-default" @click="editing=false">Cancel</button>
-		</div>
+		<form @submit.prevent="update">
+		    <div class="form-group">
+			<textarea :id="'body-'+id" class="form-control" v-model="body" required></textarea>
+		    </div>
+
+		    <button class="btn btn-xs btn-primary">Update</button>
+		    <button class="btn btn-xs btn-link" @click="editing = false" type="button">Cancel</button>
+		</form>
 	    </div>
-	    <div v-text="body" v-show="!editing">
-	    </div>
+
+	    <div v-show="!editing" v-html="linkedBody"></div>
 	</div>
+
 	<div class="panel-footer level" v-if="canUpdate">
-	    <button class="btn btn-xs btn-primary mr-1" @click="editing=true">Edit</button>
-	    <button class="btn btn-xs btn-danger" @click="destroy">Delete</button>
+	    <button class="btn btn-xs mr-1" @click="editing = true">Edit</button>
+	    <button class="btn btn-xs btn-danger mr-1" @click="destroy">Delete</button>
 	</div>
     </div>
 </template>
+
 <script>
  import Favorite from './Favorite.vue';
  import moment from 'moment';
+ import atwho from '../mixins/mount.atwho.js';
+ import errorHandler from '../mixins/axios.error.handler.js';
+
  export default {
      props: ['data'],
-     created() {
+     mixins: [atwho, errorHandler],
+     components: { Favorite },
+     mounted () {
+	 this.initAtWho();
      },
      data() {
-	 return {
-	     reply: this.data,
-	     body: this.data.body,
-	     id: this.data.id,
-	     favorites: this.data.favorites,
-	     editing: false,
-	     signedIn: window.Laravel.signedIn
-	 }
+         return {
+             editing: false,
+             id: this.data.id,
+             body: this.data.body
+         };
      },
-     methods: {
-	 update() {
-	     axios.patch(`/reply/${this.id}`, {body: this.body})
-		  .then(function(data) {
-		      console.log('then');
-		  })
-		  .catch(function(data) {
-		      console.log('catech');
-		  });
-	     this.editing = false
-	 },
-	 destroy() {
-	     let id = this.id;
-	     let self = this;
-	     axios.delete(`/reply/${this.id}`).then(function(data) {
-		 console.log('id is ', id);
-		 self.$emit('deleted', self.id);
-	     }).catch(function(data) {
-		 console.log('catch destroy');
-		 //console.log(data);
+     computed: {
+         ago() {
+             return moment(this.data.created_at).fromNow() + '...';
+         },
+
+         signedIn() {
+             return window.Laravel.signedIn;
+         },
+         canUpdate() {
+             return this.authorize(user => this.data.user_id == user.id);
+         },
+	 linkedBody() {
+	     return this.body.replace(/@([A-Za-z\.]+)/g, (match, string) => {
+		 return `<a href="/profiles/${string}">${match}</a>`;
 	     });
 	 }
      },
-     computed: {
-	 canUpdate() {
-	     return this.authorize(user => this.data.user_id == user.id);
+     methods: {
+         update() {
+             axios.patch(
+                 '/repliesXX/' + this.data.id, {
+                     body: this.body
+                 }).then((data) => {
+		     this.editing = false;
+		     flash('Reply Updated!');
+		 })
+		  .catch((error) => this.handle(error));
 	 },
-	 ago() {
-	     return moment(new Date(this.data.created_at)).fromNow() + ' ago';
+	 destroy() { //url, {}, () => {}, () => {}
+	     axios.delete('/replies/' + this.data.id)
+		  .then(response => {
+		      this.$emit('deleted', this.data.id);
+		  })
+		  .catch((error) => this.handle(error));
+
 	 }
      }
  }

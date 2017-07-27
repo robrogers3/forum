@@ -2,10 +2,14 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 use App\Filters\ThreadFilters;
 use App\Traits\RecordsActivity;
+use App\Notifications\YouWereMentioned;
 use App\Notifications\ThreadWasUpdated;
+use App\Events\ThreadReceivedNewReply;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\Model;
 
 class Thread extends Model
 {
@@ -23,10 +27,6 @@ class Thread extends Model
         parent::boot();
         static::deleting(function ($thread) {
             $thread->replies->each->delete();
-        });
-        
-        static::addGlobalScope('replyCount', function ($builder) {
-            $builder->withCount('replies');
         });
     }
 
@@ -58,19 +58,9 @@ class Thread extends Model
 
     public function addReply($reply)
     {
-        $reply =  $this->replies()->create($reply);
+        $reply = $this->replies()->create($reply);
 
-        $this->subscriptions
-            ->where('user_id', '!=', $reply->user_id)
-            ->each
-            ->notify($reply);
-
-        /** @var ThreadSubscription $subscription */
-        // foreach($this->subscriptions as $subscription) {
-        //     if ($subscription->user_id != $reply->user_id) {
-        //         $subscription->user->notify($reply);
-        //     }
-        // }
+        event(new ThreadReceivedNewReply($reply));
         
         return $reply;
     }
@@ -125,5 +115,13 @@ class Thread extends Model
         return $this->subscriptions()
             ->where('user_id', auth()->id())
             ->exists();
+    }
+    public function hasUpdatesFor($user = null)
+    {
+        $user = $user ?: auth()->user();
+
+        if (!$user) return false;
+        
+        return $this->updated_at > cache($user->visitedThreadCacheKey($this));
     }
 }

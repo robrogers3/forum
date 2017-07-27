@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Reply;
+use App\User;
 use App\Thread;
+use App\Http\Forms\CreatePostForm;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class RepliesController extends Controller
 {
@@ -28,9 +31,9 @@ class RepliesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Spam $spam)
     {
-        //
+        $this->spam = $spam;
     }
 
     /**
@@ -39,24 +42,14 @@ class RepliesController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store($channelId, Thread $thread)
+    public function store($channelId, Thread $thread, CreatePostForm $form)
     {
-        $this->validate(request(), [
-            'body' => 'required'
-            ]
-        );
-        $reply = $thread->addReply(
+        return $thread->addReply(
             [
                 'body' => request('body'),
                 'user_id' => auth()->id()
-            ]
-        );
+            ])->load('owner');
 
-        if (request()->wantsJson()) {
-            return $reply->load('owner');
-        }
-        
-        return back();
     }
 
     /**
@@ -90,9 +83,15 @@ class RepliesController extends Controller
      */
     public function update(Request $request, Reply $reply)
     {
-        $this->authorize('update', $reply);
+        //        $this->authorize('update', $reply);
 
+        $this->validate(request(), [
+            'body' => 'required|spamfree|email'
+        ]);
+        
         $reply->update(['body' => request('body')]);
+
+        return response('update worked');
     }
 
     /**
@@ -103,15 +102,14 @@ class RepliesController extends Controller
      */
     public function destroy(Reply $reply)
     {
-        $this->authorize('update', $reply);
+        $this->authorize('delete', $reply);
 
         $reply->delete();
 
-        if (request()->wantsJson()) {
-            return response('', 200);
-        }
-
-        return back();
+        return response('Reply Deleted', 200);
     }
 
+    protected function validateReply()
+    {
+    }
 }

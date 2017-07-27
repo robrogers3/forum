@@ -11,17 +11,10 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Styles -->
+    <link href="{{ asset('css/jquery.atwho.css') }}" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <style>
-     .level {
-         display: flex;
-         align-items: center;
-         _justify-content: flex-start;
-     }
-     .flex {
-         flex: 1;
-     }
-     .mr-1 {margin-right: 1em;}
+
     </style>
     <!-- Scripts -->
     <script>

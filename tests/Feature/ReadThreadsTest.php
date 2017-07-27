@@ -23,11 +23,14 @@ class ReadThreadsTest extends TestCase
         $this->get('/threads')->assertSee($this->thread->title);
     }
 
-    /** @test */
+    /** test */
     public function a_user_can_see_replies_associated_with_a_thread()
     {
-        $reply = create('App\Reply', ['thread_id' => $this->thread->id]);
-        $this->get($this->thread->path())->assertSee($reply->body);
+        $this->runDatabaseMigrations();
+        $reply = create('App\Reply', ['thread_id' => $this->thread->id, 'body' => 'see mee']);
+        
+        $this->get($this->thread->fresh()->path())->assertSee('see mee');
+
     }
 
     /** @test */
@@ -79,8 +82,8 @@ class ReadThreadsTest extends TestCase
         create('App\Reply', ['thread_id' => $thread->id], 2);
 
         $response = $this->getJson($thread->path() . "/replies")->json();
-        print_r($response);
-        $this->assertCount(1, $response['data']);
+
+        $this->assertCount(2, $response['data']);
 
         $this->assertEquals(2, $response['total']);
 

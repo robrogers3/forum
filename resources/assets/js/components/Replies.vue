@@ -11,8 +11,11 @@
 <script>
  import NewReply from './NewReply.vue';
  import Reply from './Reply.vue';
+ import collection from '../mixins/collection';
+ 
  export default {
      components: {Reply, NewReply},
+     mixins:[collection],
      data() {
 	 return {
 	     dataSet: null,
@@ -24,28 +27,18 @@
      },
      methods: {
 	 fetch() {
+	     console.log('fetch');
 	     axios.get(this.url())
 		  .then(this.refresh);
 	 },
 	 refresh({data}) {
-	     window.d = data;
 	     this.dataSet = data;
-	     this.items = data.data;
-//	     this.items.push(data.data);
+             this.items = data.data;
+             window.scrollTo(0, 0);
 	 },
 	 url() {
 	     return window.location.pathname + '/replies';
 	 },
-	 remove(index) {
-	     flash('awesome')
-	     this.items.splice(index, 1);
-	     this.$emit('remove')
-	 },
-	 add(reply) {
-	     console.log('gees');
-	     this.items.push(reply);
-	     this.$emit('added')
-	 }
      },
      computed: {
 	 signedIn: function() {
