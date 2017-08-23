@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Reply;
 use App\Favorite;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class FavoritesController extends Controller
 {
@@ -20,12 +20,10 @@ class FavoritesController extends Controller
 
     public function store(Reply $reply)
     {
+        
         $reply->favorite();
 
-        if (request()->wantsJson()) {
-            return response('', 200);
-        }
-        return back();
+        return response('', 200);
     }
 
     public function destroy(Reply $reply)

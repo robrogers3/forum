@@ -2,6 +2,7 @@
 
 namespace App\Http\Forms;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -15,7 +16,7 @@ class CreatePostForm extends FormRequest
      */
     public function authorize()
     {
-        return Gate::allows('create', new \App\Reply);
+        //        return Gate::allows('create', new \App\Reply);
         return true;
     }
 
@@ -27,7 +28,7 @@ class CreatePostForm extends FormRequest
     public function rules()
     {
         return [
-            'body' => 'required|spamfree|email'
+            'body' => 'required|spamfree'
         ];
     }
 

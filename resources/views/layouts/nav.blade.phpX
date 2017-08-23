@@ -1,0 +1,47 @@
+<nav class="navbar">
+  <!-- Collapsed Hamburger -->
+  
+  <!-- Branding Image -->
+  <div class="navbar-brand">
+    <a class="navbar-item" href="/">
+      {{ config('app.name', 'Laravel') }}
+    </a>
+  </div>
+  <div class="navbar-menu">
+      <div class="navbar-start">
+	<div class="navbar-item has-dropdown is-hoverable">
+	  <a class="navbar-link  is-active" href="/threads">Threads</a>
+	  <div class="navbar-dropdown">
+	    <a class="navbar-item " href="/threads?popular=true">Popular</a>
+	    <a class="navbar-item " href="/threads?unanswered=true">Unanswered</a>
+            <a class="navbar-item" href="/threads?by={{auth()->user()->name}}">My Threads</a>
+	  </div>
+	</div>
+	@if (count($channels))
+	<div class="navbar-item has-dropdown is-hoverable">
+	  <span class="navbar-link  is-active" href="/threads">Channels</span>
+	  <div class="navbar-dropdown">
+	    @foreach($channels as $channel)
+            <a class="navbar-item" href="{{$channel->path()}}">{{$channel->name}}</a>
+	    @endforeach
+	  </div>
+	</div>
+	@endif
+
+      </div>
+
+      <div class="navbar-end">
+        @if (Auth::guest())
+        <a class="navbar-item" href="{{ route('login') }}">Login</a>
+        <a class="navbar-item" href="{{ route('register') }}">Register</a>
+	@else
+	<user-notifications></user-notifications>
+	<div class="navbar-item has-dropdown is-hoverable">		
+          <a href="#" class="navbar-item">
+            {{ Auth::user()->name }} <span class="caret"></span>
+          </a>
+        </div>
+	@endif
+      </div>
+    </div>
+</nav>

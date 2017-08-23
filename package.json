@@ -20,7 +20,10 @@
   },
   "dependencies": {
     "at.js": "^1.5.3",
+    "bulma": "^0.5.0",
+    "install": "^0.10.1",
     "jquery.caret": "^0.3.1",
-    "moment": "^2.18.1"
+    "moment": "^2.18.1",
+    "npm": "^5.3.0"
   }
 }

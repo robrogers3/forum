@@ -26,7 +26,6 @@
      },
      methods: {
 	 flash (data) {
-	     console.log('flash data', data, data.message, data.level);
 	     this.body = data.message
 	     this.flashType = data.level == 'success' ? 'Right on man!' : 'Sorry dude!';
 	     this.flashLevel = data.level ? data.level : 'success';

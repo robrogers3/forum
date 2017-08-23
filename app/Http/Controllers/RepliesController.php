@@ -8,12 +8,13 @@ use App\Thread;
 use App\Http\Forms\CreatePostForm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use RobRogers3\LaravelExceptionHandler\Exceptions\MessagingException;
 
 class RepliesController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except('index');
+        //        $this->middleware('auth')->except('index');
     }
 
     /**
@@ -44,6 +45,9 @@ class RepliesController extends Controller
      */
     public function store($channelId, Thread $thread, CreatePostForm $form)
     {
+
+        Log::info(__METHOD__, [request()->header('X-XSRF-TOKEN')]);
+
         return $thread->addReply(
             [
                 'body' => request('body'),
@@ -83,10 +87,10 @@ class RepliesController extends Controller
      */
     public function update(Request $request, Reply $reply)
     {
-        //        $this->authorize('update', $reply);
+        $this->authorize('update', $reply);
 
         $this->validate(request(), [
-            'body' => 'required|spamfree|email'
+            'body' => 'required|spamfree'
         ]);
         
         $reply->update(['body' => request('body')]);
@@ -107,9 +111,5 @@ class RepliesController extends Controller
         $reply->delete();
 
         return response('Reply Deleted', 200);
-    }
-
-    protected function validateReply()
-    {
     }
 }

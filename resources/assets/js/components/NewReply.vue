@@ -27,8 +27,9 @@
 
 <script>
  import atwho from '../mixins/mount.atwho.js';
+ import errorHandler from '../mixins/axios.error.handler.js';
  export default {
-     mixins: [atwho],
+     mixins: [atwho, errorHandler],
      mounted () {
 	 this.initAtWho();
      },
@@ -44,38 +45,13 @@
      },
      methods: {
          addReply() {
-             axios.post(location.pathname + '/reply', { body: this.body })
+	     axios.post(location.pathname + '/reply', { body: this.body })
 	     	  .then(({data}) => {
 		      this.body = '';
-		      
 		      flash('Your reply has been posted.');
-		      
 		      this.$emit('created', data);
 		  })
-		  .catch(error => {
-		      window.E = error;
-		      if (typeof error.response.data != 'undefined') {
-			  let errors = [];
-			  Object.keys(error.response.data).forEach(key => {
-			      error.response.data[key].forEach(datum => {
-				  errors.push(datum);
-			      });});
-
-			  return flash(errors.join(', '), 'danger');
-		      }
-
-		      
-		      if (typeof error.message != 'undefined') {
-			  return flash('really ' + error.message, 'danger');
-		      }
-
-		      if (typeof error.response.data != 'undefined' && typeof error.response.data.error != 'undefined') {
-			  return flash(error.response.data.error.message, 'danger');
-		      }
-		      
-		      flash('got new clue', 'danger');
-                  })
-
+	     	  .catch((error) => this.handle(error));
 	 }
      }
  }

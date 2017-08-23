@@ -27,27 +27,20 @@
                             <div class="form-group">
                                 <label for="title">Title:</label>
                                 <input type="text" class="form-control" id="title" name="title"
-                                       value="{{ old('title') }}" required>
+                                       value="{{ old('title') }}" >
                             </div>
 
                             <div class="form-group">
                                 <label for="body">Body:</label>
                                 <textarea name="body" id="body" class="form-control"
-                                          rows="8" required>{{ old('body') }}</textarea>
+                                          rows="8">{{ old('body') }}</textarea>
                             </div>
 
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary">Publish</button>
                             </div>
 
-                            @if (count($errors))
-                                <div class="alert alert-danger">
-				    <strong>There are problems with your posting</strong>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </div>
-                            @endif
+			    @include('layouts.errors');
                         </form>
 
                     </div>

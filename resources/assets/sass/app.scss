@@ -7,10 +7,14 @@
 
 // Bootstrap
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+//@import './node_modules/bulma/bulma.sass';
 .level {
     display: flex;
     align-items: center;
     _justify-content: flex-start;
+}
+.btw {
+    justify-content: space-between;
 }
 .flex {
     flex: 1;
@@ -30,4 +34,34 @@
     display: inline-block;
     max-width: 500px;
     word-wrap: wrap;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+}
+
+[v-cloak] {
+    display:none;
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
 }

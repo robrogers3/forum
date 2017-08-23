@@ -83,6 +83,7 @@
                     @endif
                 </div>
             @endif
+
 	    @if (session('notice'))
 		<div class="alert alert-success">
 		    {{ session('notice') }}
@@ -104,5 +105,4 @@
         </div>
     </body>
     <script src="{{ asset('js/app.js') }}"></script>
-
 </html>

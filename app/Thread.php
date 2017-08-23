@@ -9,6 +9,7 @@ use App\Notifications\YouWereMentioned;
 use App\Notifications\ThreadWasUpdated;
 use App\Events\ThreadReceivedNewReply;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Database\Eloquent\Model;
 
 class Thread extends Model
@@ -123,5 +124,27 @@ class Thread extends Model
         if (!$user) return false;
         
         return $this->updated_at > cache($user->visitedThreadCacheKey($this));
+    }
+
+    public function recordVisit()
+    {
+        Redis::incr($this->visitsCacheKey());
+
+        return $this;
+    }
+
+    public function visits()
+    {
+        return Redis::get($this->visitsCacheKey()) ?? 0;
+    }
+
+    public function resetVisits()
+    {
+        Redis::del($this->visitsCacheKey());
+    }
+
+    public function visitsCacheKey()
+    {
+        return "threads.{$this->id}.visits";
     }
 }

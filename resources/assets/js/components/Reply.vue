@@ -76,13 +76,14 @@
      methods: {
          update() {
              axios.patch(
-                 '/repliesXX/' + this.data.id, {
+                 '/replies/' + this.data.id, {
                      body: this.body
                  }).then((data) => {
 		     this.editing = false;
 		     flash('Reply Updated!');
 		 })
 		  .catch((error) => this.handle(error));
+	     
 	 },
 	 destroy() { //url, {}, () => {}, () => {}
 	     axios.delete('/replies/' + this.data.id)

@@ -47,23 +47,21 @@ class CreateThreadsTest extends TestCase
     /** @test */
     public function a_thread_requires_a_title()
     {
-        $this->publishThread(['title' => null])
-            ->assertSessionHasErrors('title');
+        $this->expectException('Illuminate\Validation\ValidationException');
+        $r = $this->publishThread(['title' => null]);
     }
     /** @test */
     public function a_thread_requires_a_body()
     {
-
-
-        $this->publishThread(['body' => null])
-                                     ->assertSessionHasErrors('body');
+        $this->expectException('Illuminate\Validation\ValidationException');
+        $r = $this->publishThread(['body' => null]);
     }
 
     /** @test */
     public function a_thread_requires_a_valid_channel()
     {
         $channel = factory('App\Channel', 2)->create()->first();
-
+        $this->expectException('Illuminate\Validation\ValidationException');
         $this->publishThread(['channel_id' => null])
              ->assertSessionHasErrors('channel_id');
 
@@ -72,7 +70,7 @@ class CreateThreadsTest extends TestCase
     //http://g.co/doodle/wwsn9m
     public function publishThread($overrides = [])
     {
-        $this->withExceptionHandling()->signIn();
+        $this->signIn();
 
         $thread = make('App\Thread', $overrides);
 

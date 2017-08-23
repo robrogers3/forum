@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-
 use Illuminate\Support\Facades\Session;
 use App\Thread;
+use App\Trending;
 use App\Channel;
 use App\Filters\ThreadFilters;
 use Illuminate\Http\Request;
-
+use RobRogers3\LaravelExceptionHandler\Exceptions\MessagingException;
 class ThreadsController extends Controller
 {
     public function __construct()
@@ -21,19 +21,19 @@ class ThreadsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Channel $channel, ThreadFilters $filters)
+    public function index(Channel $channel, ThreadFilters $filters, Trending $trending)
     {
         $threads = $this->getThreads($channel, $filters);
 	
         if (request()->wantsJson()) {
             return $threads->get();
         }
-	
+
         //$threads = $threads->get();
         $threads = $threads->paginate(10);
 
         return view('threads.index',
-                    ['threads' => $threads, 'channel' => $channel->exists ? $channel : null]);
+                    ['threads' => $threads, 'trending' => $trending->get() ,'channel' => $channel->exists ? $channel : null]);
     }
 
     /**
@@ -77,12 +77,16 @@ class ThreadsController extends Controller
      * @param  \App\Thread $thread
      * @return \Illuminate\Http\Response
      */
-    public function show($channelId, Thread $thread)
+    public function show($channelId, Thread $thread, Trending $trending)
     {
         if (auth()->check()) {
             auth()->user()->read($thread);
         }
 
+        $trending->push($thread);
+
+        $thread->recordVisit();
+        
         return view('threads.show', [
             'thread' => $thread,
         ]);

@@ -70,7 +70,7 @@ class ParticipateInForumTest extends TestCase
 
         $reply = create('App\Reply', ['user_id' => auth()->id()]);
 
-        $this->delete("/reply/{$reply->id}")->assertStatus(200);
+        $this->delete("/replies/{$reply->id}")->assertStatus(200);
         
         $this->assertDatabaseMissing('replies', ['id' => $reply->id]);
     }
@@ -84,7 +84,7 @@ class ParticipateInForumTest extends TestCase
 
         $body = "you have been changed";
 
-        $this->patch("/reply/{$reply->id}", ['body' => $body]);
+        $this->patch("/replies/{$reply->id}", ['body' => $body]);
 
         $this->assertDatabaseHas('replies', ['id' => $reply->id, 'body' => $body]);
     }
@@ -102,8 +102,6 @@ class ParticipateInForumTest extends TestCase
             'body' => 'Yahoo Customer Support'
         ]);
 
-        //$this->expectException('Illuminate\Validation\ValidationException');
-        
-        $this->json('POST',$thread->path() . '/reply', $reply->toArray())->assertStatus(422);
+        $this->json('POST',$thread->path() . '/reply', $reply->toArray());
     }
 }
