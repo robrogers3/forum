@@ -35,8 +35,9 @@
 
 	    <div class="container">
 		<token-reset></token-reset>
-		<flash message="{{session('flash')}}"></flash>
+
 		@yield('content')
+		<flash message="{{session('flash')}}"></flash>
 	    </div>
 	</div>
 

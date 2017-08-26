@@ -15,7 +15,7 @@ require('./bootstrap');
 window.events = new Vue({
 });
 
-window.flash = function (message, level = 'success') {
+window.flash = function (message, level = 'warning') {
     let data  =  {message: message, level: level};
     window.events.$emit('flash', data);
 };

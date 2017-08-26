@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Session;
+
 use App\Thread;
 use App\Trending;
 use App\Channel;
 use App\Filters\ThreadFilters;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 use RobRogers3\LaravelExceptionHandler\Exceptions\MessagingException;
 class ThreadsController extends Controller
 {
@@ -28,10 +29,8 @@ class ThreadsController extends Controller
         if (request()->wantsJson()) {
             return $threads->get();
         }
-
         //$threads = $threads->get();
         $threads = $threads->paginate(10);
-
         return view('threads.index',
                     ['threads' => $threads, 'trending' => $trending->get() ,'channel' => $channel->exists ? $channel : null]);
     }
@@ -59,7 +58,6 @@ class ThreadsController extends Controller
             'title' => 'required|spamfree',
             'body' => 'required|spamfree',
         ]);
-
         
         $thread = Thread::create([
             'user_id' => auth()->id(),
@@ -68,7 +66,7 @@ class ThreadsController extends Controller
             'body'  => request('body')
         ]);
 
-        return redirect($thread->path())->with('flash','Your thread has been posted.<');
+        return redirect($thread->path())->with('flash','Your thread has been posted.');
     }
 
     /**
@@ -85,7 +83,7 @@ class ThreadsController extends Controller
 
         $trending->push($thread);
 
-        $thread->recordVisit();
+        $thread->visits()->record();
         
         return view('threads.show', [
             'thread' => $thread,

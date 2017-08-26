@@ -27064,7 +27064,7 @@ __webpack_require__(162);
 window.events = new Vue({});
 
 window.flash = function (message) {
-  var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'success';
+  var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'warning';
 
   var data = { message: message, level: level };
   window.events.$emit('flash', data);
@@ -29235,7 +29235,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 								return {
 												flashLevel: 'nothing',
 												flashType: '',
-												body: '',
+												body: this.message,
 												show: false
 								};
 				},
@@ -29243,8 +29243,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 								var _this = this;
 
 								if (this.message) {
-												flash(message);
+												this.flash({ message: this.message });
 								}
+
 								window.events.$on('flash', function (data) {
 												return _this.flash(data);
 								});
@@ -29252,9 +29253,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 				methods: {
 								flash: function flash(data) {
-												this.body = data.message;
-												this.flashType = data.level == 'success' ? 'Right on man!' : 'Sorry dude!';
-												this.flashLevel = data.level ? data.level : 'success';
+												if (data) {
+																this.body = data.message;
+																this.flashLevel = data.level ? data.level : 'info';
+																this.flashType = data.level == 'success' ? 'Right on man!' : 'Alert!';
+												}
+
 												this.show = true;
 												this.hide();
 								},

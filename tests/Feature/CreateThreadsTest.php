@@ -27,6 +27,23 @@ class CreateThreadsTest extends TestCase
     }
 
     /** @test */
+    public function new_users_must_confirm_their_email_address_before_creating_threads()
+    {
+        Mail::fake();
+        
+        $user = factory('App\User')->states('unconfirmed')->create();
+
+        $this->withExceptionHandling()->signIn($user);
+        $thread = make('App\Thread');
+
+        
+        $this->post('/threads', $thread->toArray())
+            ->assertRedirect('/threads')
+            ->assertSessionHas('flash', 'You must confirm your email address. Please check your email');
+    }
+        
+    
+    /** @test */
     public function a_guest_cannot_create_a_thread()
     {
         $this->expectException('Illuminate\Auth\AuthenticationException');

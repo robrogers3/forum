@@ -14,21 +14,25 @@
 	 return {
 	     flashLevel: 'nothing',
 	     flashType: '',
-	     body: '',
+	     body: this.message,
 	     show: false
 	 }
      },
      created() {
          if (this.message) {
-	     flash(message)
+	     this.flash({message: this.message})
 	 }
+
 	 window.events.$on('flash', data => this.flash(data));
      },
      methods: {
 	 flash (data) {
-	     this.body = data.message
-	     this.flashType = data.level == 'success' ? 'Right on man!' : 'Sorry dude!';
-	     this.flashLevel = data.level ? data.level : 'success';
+	     if (data) {
+                 this.body = data.message;
+		 this.flashLevel = data.level ? data.level : 'info';
+		 this.flashType = data.level == 'success' ? 'Right on man!' :  'Alert!';
+             }
+
 	     this.show = true;
 	     this.hide();
 	 },

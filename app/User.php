@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'avatar_path'
+        'name', 'email', 'password', 'avatar_path', 'confirmation_token', 'confirmed'
     ];
 
     /**
@@ -28,6 +28,9 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
+    protected $casts = [
+        'confirmed' => 'boolean'
+    ];
     public function threads()
     {
         return $this->hasMany(Thread::class)->latest();
@@ -76,5 +79,25 @@ class User extends Authenticatable
     public function avatar()
     {
         return $this->getAvatarPathAttribute($this->avatar_path);
+    }
+
+    public function confirm()
+    {
+        $this->confirmed = true;
+
+        $this->save();
+
+        return $this;
+    }
+    
+    public static function confirmUser($userId)
+    {
+        $user = static::findOrFail($userId);
+
+        $user->confirmed = true;
+        
+        $user->save();
+        
+        return $user;
     }
 }
