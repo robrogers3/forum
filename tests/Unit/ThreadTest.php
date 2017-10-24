@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Tests\TestCase;
+use App\Thread;
 use App\Events\ThreadWasUpdated;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Notification;
@@ -20,14 +21,51 @@ class ThreadTest extends TestCase
         parent::setUp();
 
         $this->thread = create('App\Thread');
-        
     }
 
     /** @test */
-    function a_thread_can_make_a_string_path()
+    function a_thread_has_a_path()
     {
         $thread = create('App\Thread');
-        $this->assertEquals('/threads/' . $thread->channel->slug . '/' . $thread->id, $thread->path());
+        
+        $this->assertEquals('/threads/' . $thread->channel->slug . '/' . $thread->slug, $thread->path());
+    }
+
+    /** @test */
+    public function a_thread_has_a_unique_slug()
+    {
+
+        $this->assertNotNull($this->thread->slug);
+        Thread::truncate();
+        $thread2 = Thread::create($this->thread->toArray());
+
+        $this->assertEquals($this->thread->slug . '-2', $thread2->slug);
+
+        $thread3 = Thread::create($this->thread->toArray());
+
+        $this->assertEquals($this->thread->slug . '-3', $thread3->slug);
+
+
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());
+        $thread4 = Thread::create($this->thread->toArray());        
     }
 
     /** @test */
@@ -143,5 +181,38 @@ class ThreadTest extends TestCase
         $thread->visits()->record();
 
         $this->assertEquals(2, $thread->visits()->count());
+    }
+
+    /** @test */
+    public function a_thread_can_order_its_replies_by_the_best_one()
+    {
+        $thread = create('App\Thread');
+
+        $replies = create('App\Reply', ['thread_id' => $thread->id], 20);
+
+        $replies[1]->thread->update(['best_reply_id' => $replies[19]->id]);
+
+        $this->assertTrue($replies[19]->fresh()->isBest());
+
+        $sorted = $thread->replies()->paginate()->sortByDesc(function($reply)  {
+            return $reply->isBest();
+        })->first();
+
+        $this->assertEquals($replies[19]->id, $sorted->id);
+        //ddd($sorted);
+    }
+
+        /** @test */
+    public function a_thread_can_be_locked()
+    {
+        $this->runDatabaseMigrations();
+
+        $thread = create('App\Thread');
+
+        $this->assertFalse($thread->locked);
+
+        $thread->lock();
+        
+        $this->assertTrue($thread->locked);
     }
 }

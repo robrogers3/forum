@@ -30,7 +30,7 @@ class ThreadsController extends Controller
             return $threads->get();
         }
         //$threads = $threads->get();
-        $threads = $threads->paginate(10);
+        $threads = $threads->paginate(5);
         return view('threads.index',
                     ['threads' => $threads, 'trending' => $trending->get() ,'channel' => $channel->exists ? $channel : null]);
     }
@@ -54,19 +54,30 @@ class ThreadsController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'channel_id' => 'required|exists:channels,id',
+            'channel' => 'required_without:channel_id',
+            'channel_id' => 'required_without:channel|exists:channels,id',
             'title' => 'required|spamfree',
             'body' => 'required|spamfree',
         ]);
+
         
+        $channel = $this->fetchChannel();
+
+        if (!$channel) {
+            $channel = Channel::create([
+                'name' => request('channel'),
+                'slug' => request('channel')
+            ]);
+        }
+
         $thread = Thread::create([
             'user_id' => auth()->id(),
-            'channel_id' => request('channel_id'),
+            'channel_id' => $channel->id,
             'title' => request('title'),
             'body'  => request('body')
         ]);
 
-        return redirect($thread->path())->with('flash','Your thread has been posted.');
+        return redirect($thread->path());
     }
 
     /**
@@ -108,9 +119,23 @@ class ThreadsController extends Controller
      * @param  \App\Thread              $thread
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Thread $thread)
+    public function update($channelId, Thread $thread)
     {
-        //
+        $this->validate(request(), [
+            'title' => 'required',
+            'body' => 'required',
+            'channel' => 'required'
+        ]);
+
+        $channel = Channel::whereName(request('channel'))->firstOrFail();
+
+        $data = request()->only('title', 'body');
+
+        $data['channel_id'] = $channel->id;
+
+        $thread->update($data);
+
+        return response($data);
     }
 
     /**
@@ -125,11 +150,7 @@ class ThreadsController extends Controller
 
         $thread->delete();
 
-        if (request()->wantsJson()) {
-            return response([], 200);
-        }
-
-        return redirect('/threads');
+        return response(['path'=>'threads'], 200);
     }
 
     protected function getThreads(Channel $channel, $filters)
@@ -141,5 +162,14 @@ class ThreadsController extends Controller
         }
 
         return $threads;
+    }
+
+    protected function fetchChannel()
+    {
+        if (request('channel_id')) {
+            return Channel::findOrFail(request('channel_id'));
+        }
+        
+        return Channel::whereName(request('channel'))->first();
     }
 }

@@ -9,7 +9,7 @@
 <script>
  import handler from '../mixins/axios.error.handler.js';
  export default {
-     mixins: ['handler'],
+     mixins: [handler],
      created: function() {
 	 events.$on('resetToken', this.showForm);
      },
@@ -30,6 +30,7 @@
 	     axios.post('/resetToken', {email: this.email, password: this.password})
 		  .then(({data}) => {
 		      console.log('reset toke', data);
+		      this.show = false;
 		      window.axios.defaults.headers.common['X-CSRF-TOKEN'] = data;
 		  })
 		  .catch((error) => {

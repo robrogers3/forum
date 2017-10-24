@@ -15,11 +15,10 @@ require('./bootstrap');
 window.events = new Vue({
 });
 
-window.flash = function (message, level = 'warning') {
+window.flash = function (message, level = 'info') {
     let data  =  {message: message, level: level};
     window.events.$emit('flash', data);
 };
-
 
 Vue.component('flash', require('./components/Flash.vue'));
 //Vue.component('reply', require('./components/Reply.vue'));
@@ -30,7 +29,8 @@ Vue.component('token-reset', require('./components/TokenReset.vue'));
 Vue.component('set-avatar', require('./components/SetAvatar.vue'));
 Vue.component('avatar-form', require('./components/AvatarForm.vue'));
 Vue.component('avatar', require('./components/Avatar.vue'));
+Vue.component('channels', require('./components/Channels.vue'));
+Vue.component('channel-select', require('./components/ChannelSelect.vue'));
 const app = new Vue({
     el: '#app'
 });
-

@@ -38,17 +38,12 @@
              body: ''
          };
      },
-     computed: {
-         signedIn() {
-             return window.Laravel.signedIn;
-         }
-     },
      methods: {
          addReply() {
 	     axios.post(location.pathname + '/reply', { body: this.body })
 	     	  .then(({data}) => {
 		      this.body = '';
-		      flash('Your reply has been posted.');
+		      flash('Your reply has been posted.', 'success');
 		      this.$emit('created', data);
 		  })
 	     	  .catch((error) => this.handle(error));
@@ -56,5 +51,3 @@
      }
  }
 </script>
-
-

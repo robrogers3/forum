@@ -17,7 +17,7 @@ class Reply extends Model
 
     protected $with = ['owner','favorites'];
 
-    protected $appends = ['favoritesCount', 'isFavorited'];
+    protected $appends = ['favoritesCount', 'isFavorited', 'isBest'];
 
     //    protected $touches = ['thread'];
 
@@ -57,5 +57,14 @@ class Reply extends Model
         preg_match_all('/\@([^\s\.]+)/', $this->body, $matches);
 
         if ($matches)  return $matches[1];
+    }
+
+    public function getIsBestAttribute() {
+        return $this->isBest();
+    }
+    
+    public function isBest()
+    {
+        return $this->thread->best_reply_id == $this->id;
     }
 }

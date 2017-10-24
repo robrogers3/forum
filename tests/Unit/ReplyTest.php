@@ -54,4 +54,32 @@ class ReplyTest extends TestCase
         );
 
     }
+
+    /** @test */
+    public function it_knows_if_its_the_best_reply()
+    {
+        $reply = create('App\Reply');
+
+        $this->assertFalse($reply->isBest());
+
+        $reply->thread->update(['best_reply_id' => $reply->id]);
+
+        $this->assertTrue($reply->fresh()->isBest());
+    }
+
+    /** @test */
+    public function it_knows_if_its_not_the_best_reply()
+    {
+        $reply = create('App\Reply');
+
+        $this->assertFalse($reply->isBest());
+
+        $reply->thread->update(['best_reply_id' => $reply->id]);
+
+        $this->assertTrue($reply->fresh()->isBest());
+
+        $reply->thread->update(['best_reply_id' => null]);
+        
+        $this->assertFalse($reply->fresh()->isBest());
+    }
 }

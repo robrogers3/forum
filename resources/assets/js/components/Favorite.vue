@@ -1,10 +1,10 @@
 <template>
-  <div>
-    <button type="submit" :class="classes" @click="toggle">
-      <span class="glyphicon glyphicon-heart"></span>
-      <span v-text="favorites_count"></span>
-    </button>
-  </div>
+    <div>
+	<button type="submit" :class="classes" @click="toggle">
+	    <span class="glyphicon glyphicon-heart"></span>
+	    <span v-text="favorites_count"></span>
+	</button>
+    </div>
 </template>
 
 <script>
@@ -24,7 +24,7 @@
 	 },
 	 favorite() {
 	     axios.post(this.endpoint)
-		  .then(({data}) => {console.log(data);
+		  .then(({data}) => {
 		      this.favorites_count++;
 		      this.isFavorited = true;
 		  })

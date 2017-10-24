@@ -15,9 +15,10 @@ class ParticipateInForumTest extends TestCase
     /** @test */
     function unauthenticated_users_may_not_add_replies()
     {
-        $this->expectException('Illuminate\Auth\AuthenticationException');
+        $this->withExceptionHandling();
+        //$this->expectException('Illuminate\Auth\AuthenticationException');
         
-           $this->post('/threads/some-channel/1/reply', []);
+        $this->post('/threads/some-channel/1/reply', [])->assertStatus(302);
     }
 
     /** @test */
@@ -37,16 +38,14 @@ class ParticipateInForumTest extends TestCase
     /** @test */
     public function a_reply_requires_a_body()
     {
-        $this->signIn();
-
-        $this->expectException('Illuminate\Validation\ValidationException');
+        $this->signIn()->withExceptionHandling();
         
         $thread = create('App\Thread');
 
         $reply = make('App\Reply', ['body' => null]);
 
-        $this->post($thread->path() . '/reply', $reply->toArray())
-            ->assertSessionHasErrors('body');
+        $this->json('POST', $thread->path() . '/reply', $reply->toArray())
+                                            ->assertStatus(422);
     }
 
     /** @test */
@@ -102,6 +101,6 @@ class ParticipateInForumTest extends TestCase
             'body' => 'Yahoo Customer Support'
         ]);
 
-        $this->json('POST',$thread->path() . '/reply', $reply->toArray());
+        $this->json('POST', $thread->path() . '/reply', $reply->toArray())->assertStatus(422);
     }
 }

@@ -7,13 +7,17 @@ export default {
     methods: {
 	add(item) {
 	    this.items.push(item);
-	    flash('added');
 	    this.$emit('added');
 	},
 	remove(index) {
 	    this.items.splice(index, 1);
-	    flash('removed');
 	    this.$emit('removed');
+	},
+	has(item) {
+	    return this.items.includes(item);
+	},
+	sort() {
+	    this.items.sort();
 	}
     }
 };

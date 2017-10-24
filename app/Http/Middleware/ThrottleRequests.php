@@ -66,10 +66,8 @@ class ThrottleRequests extends LaravelThrottler
     {
         $request = request();
 
-        if (request()->wantsJson() || true) {
-            
+        if (request()->wantsJson()) {
             $response = response()->json(['flash' => 'you are super busy, yeah?'], 429);
-
         } else {
             $response = redirect('/')->with(['flash' => 'gosh we are so busy please try in a bit']);
         }

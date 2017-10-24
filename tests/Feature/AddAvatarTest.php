@@ -48,6 +48,6 @@ class AddAvatarTest extends TestCase
 
         Storage::disk('public')->assertExists('avatars/'. $file->hashName());
 
-        $this->assertEquals(auth()->user()->avatar_path, 'avatars/' .$file->hashName());
+        $this->assertEquals(auth()->user()->avatar_path, url('avatars/' . $file->hashName()));
     }
 }

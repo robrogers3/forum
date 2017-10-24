@@ -14,8 +14,10 @@ class ActivityTest extends TestCase
     /** @test */
     public function it_records_activity_when_a_thread_is_created()
     {
+        $this->runDatabaseMigrations();
+        
         $this->signIn();
-        \App\Thread::truncate();
+
         $thread = create('App\Thread');
 
         $this->assertDatabaseHas('activities', [
@@ -25,9 +27,11 @@ class ActivityTest extends TestCase
             'subject_type' => 'App\Thread'
             ]);
 
+
         $activity = \App\Activity::first();
 
         $this->assertEquals($activity->subject->id, $thread->id);
+
     }
 
     /** @test */

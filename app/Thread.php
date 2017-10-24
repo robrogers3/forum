@@ -17,20 +17,40 @@ class Thread extends Model
     //use ModelPath;
     use RecordsActivity;
 
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'user_id',
+        'channel_id',
+        'title',
+        'body',
+        'slug',
+        'best_reply_id',
+        'locked'
+    ];
 
     protected $with = ['creator', 'channel'];
 
-    protected $appends =  ['isSubscribedTo'];
+    protected $appends =  ['isSubscribedTo', 'path'];
 
+    protected $casts  = ['locked' => 'boolean'];
+    
     protected static function boot()
     {
         parent::boot();
+
         static::deleting(function ($thread) {
             $thread->replies->each->delete();
         });
+
+        static::created(function ($thread) {
+            $thread->update(['slug' => str_slug($thread->title)]);
+        });
     }
 
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+    
     public function delete()
     {
         $this->replies()->each(function ($reply) {
@@ -66,10 +86,19 @@ class Thread extends Model
         return $reply;
     }
 
+    
+    public function getPathAttribute()
+    {
+        if (!$this->channel) {
+            return '';
+        }
+        return "/threads/{$this->channel->slug}/{$this->slug}";
+    }
+    
     public function path()
     {
-        $path = "/threads/{$this->channel->slug}/{$this->id}";
-        return $path;
+        return  "/threads/{$this->channel->slug}/{$this->slug}";
+
     }
 
     public function scopeFilter($builder, ThreadFilters $filter)
@@ -129,5 +158,52 @@ class Thread extends Model
     public function visits()
     {
         return new Visits($this);
+    }
+
+    public function setSlugAttribute($value)
+    {
+
+        $original = $slug = str_slug($value);
+        $count = 2;
+
+        while (static::whereSlug($slug)->exists()) {
+            $slug = "{$original}-" . $count++;
+        }
+
+        $this->attributes['slug'] = $slug;
+
+    }
+
+    public function incrementSlug($slug, $count = 2)
+    {
+        $template = static::whereTitle($this->title)->latest('id')->value('slug');
+
+        preg_match('/-(\d+)$/', $template, $matches);
+        
+        if (!$matches) {
+            return $template . '-2';
+        }
+
+        $suffix = sprintf('-%d', (int) $matches[1] + 1);
+
+        $slug = str_replace($matches[0], $suffix, $template);
+
+        return $slug;
+        
+    }
+
+    public function markBestReply(Reply $reply)
+    {
+        $this->update(['best_reply_id' => $reply->id]);
+    }
+
+    public function unMarkBestReply(Reply $reply)
+    {
+        $this->update(['best_reply_id' => null]);
+    }
+
+    public function lock()
+    {
+        $this->update(['locked' => true]);
     }
 }

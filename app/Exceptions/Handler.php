@@ -5,7 +5,6 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use RobRogers3\LaravelExceptionHandler\JsonAwareExceptionHandler;
 
 class Handler extends JsonAwareExceptionHandler
@@ -47,11 +46,10 @@ class Handler extends JsonAwareExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-
         if (app()->environment() == 'testing') {
             ; //throw $exception;
         }
-        
+
         return parent::render($request, $exception);
     }
 

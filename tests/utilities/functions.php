@@ -19,3 +19,7 @@ function ddd($arg)
     }
     exit;
 }
+
+function m($obj) {
+    return get_class_methods(get_class($obj));
+}

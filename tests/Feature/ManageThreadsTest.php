@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use App\Thread;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -17,8 +18,10 @@ class ManageThreadsTest extends TestCase
         $this->signIn();
 
         $thread = make('App\Thread');
-
-        $response = $this->post('/threads', $thread->toArray());
+        $channelName = $thread->channel->name;
+        $data = $thread->toArray();
+        $data['channel'] = $channelName;
+        $response = $this->post('/threads', $data);
         $location = $response->headers->get('Location');
 
         $this->get($location)
@@ -68,11 +71,11 @@ class ManageThreadsTest extends TestCase
     public function a_thread_requires_a_valid_channel()
     {
         $channel = factory('App\Channel', 2)->create()->first();
+        
+        // $this->publishThread(['channel_id' => null])
+        //      ->assertSessionHasErrors('channel');
 
-        $this->publishThread(['channel_id' => null])
-             ->assertSessionHasErrors('channel_id');
-
-        $response = $this->publishThread(['channel_id' => $channel->id]);
+        $response = $this->publishThread(['channel_id' => $channel]);
     }
 
     /** @test */
@@ -118,6 +121,46 @@ class ManageThreadsTest extends TestCase
     }
 
     /** @test */
+    public function a_thread_can_be_updated()
+    {
+        $this->withExceptionHandling()->signIn();
+        //        $this->signIn();
+        $thread = create('App\Thread');
+
+        $this->assertEquals($thread->title, Thread::first()->title);
+        
+        $thread->title = 'Updated via patch';
+
+        $data = $thread->toArray();
+
+        $data['channel'] = $thread->channel->name;
+        
+        $this->patch($thread->path, $data)
+            ->assertStatus(200)->assertSee($thread->title);
+        
+        $this->assertEquals('Updated via patch', Thread::first()->title);
+    }
+
+    /** @test */
+    public function a_threads_channel_can_be_updated()
+    {
+        //$this->withExceptionHandling()->signIn();
+        $this->signIn();
+        $thread = create('App\Thread');
+        $channel = create('App\Channel');
+        
+        $this->assertEquals($thread->channel->name, Thread::first()->channel->name);
+
+        $data = $thread->toArray();        
+
+        $data['channel'] = $channel->name;
+
+        $this->patch($thread->path, $data)
+            ->assertStatus(200);
+
+        $this->assertEquals($channel->name, Thread::first()->channel->name);
+    }
+
     public function publishThread($overrides = [])
     {
         $this->withExceptionHandling()->signIn();

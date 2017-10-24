@@ -31,6 +31,11 @@ class User extends Authenticatable
     protected $casts = [
         'confirmed' => 'boolean'
     ];
+
+    protected $appends = [
+        'isAdmin'
+    ];
+    
     public function threads()
     {
         return $this->hasMany(Thread::class)->latest();
@@ -85,6 +90,8 @@ class User extends Authenticatable
     {
         $this->confirmed = true;
 
+        $this->confirmation_token = null;
+                
         $this->save();
 
         return $this;
@@ -95,9 +102,35 @@ class User extends Authenticatable
         $user = static::findOrFail($userId);
 
         $user->confirmed = true;
+
+        $user->confirmation_token = null;
         
         $user->save();
         
         return $user;
+    }
+
+    public static function createConfirmationToken($email)
+    {
+        return md5($email) . str_random();
+    }
+
+    public function setConfirmationToken()
+    {
+            $this->confirmation_token = static::createConfirmationToken($this->email);
+
+            $this->save();
+
+            return $this;
+    }
+
+    public function getIsAdminAttribute()
+    {
+        return $this->isAdmin();
+    }
+
+    public function isAdmin()
+    {
+        return $this->name == 'RobRogers';
     }
 }

@@ -9,59 +9,59 @@
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
-
+	<link href="{{ asset('css/app.css') }}" rel="stylesheet">
         <!-- Styles -->
         <style>
-            html, body {
-                background-color: #fff;
-                color: #636b6f;
-                font-family: 'Raleway', sans-serif;
-                font-weight: 100;
-                height: 100vh;
-                margin: 0;
-            }
+         html, body {
+             background-color: #fff;
+             color: #636b6f;
+             font-family: 'Raleway', sans-serif;
+             font-weight: 100;
+             height: 100vh;
+             margin: 0;
+         }
 
-            .full-height {
-                height: 100vh;
-            }
+         .full-height {
+             height: 100vh;
+         }
 
-            .flex-center {
-                align-items: center;
-                display: flex;
-                justify-content: center;
-            }
+         .flex-center {
+             align-items: center;
+             display: flex;
+             justify-content: center;
+         }
 
-            .position-ref {
-                position: relative;
-            }
+         .position-ref {
+             position: relative;
+         }
 
-            .top-right {
-                position: absolute;
-                right: 10px;
-                top: 18px;
-            }
+         .top-right {
+             position: absolute;
+             right: 10px;
+             top: 18px;
+         }
 
-            .content {
-                text-align: center;
-            }
+         .content {
+             text-align: center;
+         }
 
-            .title {
-                font-size: 84px;
-            }
+         .title {
+             font-size: 84px;
+         }
 
-            .links > a {
-                color: #636b6f;
-                padding: 0 25px;
-                font-size: 12px;
-                font-weight: 600;
-                letter-spacing: .1rem;
-                text-decoration: none;
-                text-transform: uppercase;
-            }
+         .links > a {
+             color: #636b6f;
+             padding: 0 25px;
+             font-size: 12px;
+             font-weight: 600;
+             letter-spacing: .1rem;
+             text-decoration: none;
+             text-transform: uppercase;
+         }
 
-            .m-b-md {
-                margin-bottom: 30px;
-            }
+         .m-b-md {
+             margin-bottom: 30px;
+         }
         </style>
 	<script>
          // rename myToken as you like
@@ -103,6 +103,29 @@
                 </div>
             </div>
         </div>
+	<!-- Trigger the modal with a button -->
+	<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
+
+	<!-- Modal -->
+	<div id="myModal" class="modal fade" role="dialog">
+	    <div class="modal-dialog">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+		    <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+			<h4 class="modal-title">Modal Header</h4>
+		    </div>
+		    <div class="modal-body">
+			<p>Some text in the modal.</p>
+		    </div>
+		    <div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		    </div>
+		</div>
+
+	    </div>
+	</div>
     </body>
     <script src="{{ asset('js/app.js') }}"></script>
 </html>

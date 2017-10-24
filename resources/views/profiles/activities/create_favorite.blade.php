@@ -10,5 +10,8 @@
 @slot('body')
     {{ $activity->subject->favorited->body }}
 @endslot
-    
+
+@slot('footer')
+yeah favorite
+@endslot
 @endcomponent

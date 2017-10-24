@@ -39,7 +39,7 @@
 		@endif
 	    @endforeach
 	@endforeach
-        {$activities->links()}
+        {$activities->render()}
 	</div>
     </div>
 @endsection

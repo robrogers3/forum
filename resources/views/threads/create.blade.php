@@ -8,20 +8,11 @@
                     <div class="panel-heading">Create a New Thread</div>
 
                     <div class="panel-body">
-                        <form method="POST" action="/threads">
+                        <form method="POST" action="/threads" onkeypress="return event.keyCode != 13;">
                             {{ csrf_field() }}
 
                             <div class="form-group">
-                                <label for="channel_id">Choose a Channel:</label>
-                                <select name="channel_id" id="channel_id" class="form-control" required>
-                                    <option value="">Choose One...</option>
-
-                                    @foreach ($channels as $channel)
-                                        <option value="{{ $channel->id }}" {{ old('channel_id') == $channel->id ? 'selected' : '' }}>
-                                            {{ $channel->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+				<channel-select :channels="{{$channels}}" old="{{ old('channel') }}"></channel-select>
                             </div>
 
                             <div class="form-group">

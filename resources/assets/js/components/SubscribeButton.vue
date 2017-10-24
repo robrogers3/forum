@@ -3,7 +3,9 @@
 </template>
 
 <script>
+ import errorHandler from '../mixins/axios.error.handler.js';
  export default {
+     mixins: [errorHandler],
      props: ['subscribed'],
      data () {
 	 return {
@@ -17,7 +19,7 @@
 		     this.$emit('togglesubscription');
 		 })
 		 .catch(error => {
-		     flash('sorry problems happened!')
+		     this.handle(error);
 		 })
 	 },
 	 getText () {

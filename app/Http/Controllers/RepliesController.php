@@ -14,7 +14,7 @@ class RepliesController extends Controller
 {
     public function __construct()
     {
-        //        $this->middleware('auth')->except('index');
+        $this->middleware('auth')->except('index');
     }
 
     /**
@@ -24,7 +24,7 @@ class RepliesController extends Controller
      */
     public function index($channel, Thread $thread)
     {
-        return $thread->replies()->paginate(100);
+        return $thread->replies()->paginate(2);
     }
 
     /**
@@ -45,15 +45,14 @@ class RepliesController extends Controller
      */
     public function store($channelId, Thread $thread, CreatePostForm $form)
     {
-
-        Log::info(__METHOD__, [request()->header('X-XSRF-TOKEN')]);
-
+        if ($thread->locked) {
+            return response('This thread has been locked down.', 418);
+        }
         return $thread->addReply(
             [
                 'body' => request('body'),
                 'user_id' => auth()->id()
             ])->load('owner');
-
     }
 
     /**

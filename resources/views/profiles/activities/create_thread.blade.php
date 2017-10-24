@@ -15,7 +15,9 @@
 @endslot
 
 @slot('body')
-    {{$activity->subject->body}}
+{{$activity->subject->body}}
 @endslot
-
+@slot('footer')
+Created Threads
+@endslot
 @endcomponent

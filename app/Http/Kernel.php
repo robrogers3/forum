@@ -37,7 +37,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:60,1',
+            'throttle:200,1',
             'bindings',
         ],
     ];
@@ -55,7 +55,10 @@ class Kernel extends HttpKernel
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'throttle' => \App\Http\Middleware\ThrottleRequests::class,
+
+        'throttle-a-little' => \App\Http\Middleware\ThrottleALittle::class,
+                'throttle' => \App\Http\Middleware\ThrottleRequests::class,
         'must-be-confirmed' =>  \App\Http\Middleware\RedirectIfEmailNotConfirmed::class,
+        'admin' =>  \App\Http\Middleware\Administrator::class,
     ];
 }

@@ -21,7 +21,7 @@ class UserPolicy
 
     public function update(User $user, User $profileUser)
     {
-        return $user->id = $profileUser->id;
+        return $user->id == $profileUser->id;
     }
     
 }

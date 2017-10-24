@@ -1,5 +1,5 @@
 <template>
-    <div :id="'reply-'+id" class="panel panel-default">
+    <div :id="'reply-'+id" class="panel" :class="panelHeaderClass">
 	<div class="panel-heading">
 	    <div class="level">
 		<h5 class="flex">
@@ -7,6 +7,7 @@
 		       v-text="data.owner.name">
 		    </a> said <span v-text="ago"></span>
 		</h5>
+		<best-reply :reply="data"></best-reply>
 
 		<div v-if="signedIn">
 		    <favorite :reply="data"></favorite>
@@ -29,7 +30,7 @@
 	    <div v-show="!editing" v-html="linkedBody"></div>
 	</div>
 
-	<div class="panel-footer level" v-if="canUpdate">
+	<div class="panel-footer level" v-if="authorize('updateReply', reply)">
 	    <button class="btn btn-xs mr-1" @click="editing = true">Edit</button>
 	    <button class="btn btn-xs btn-danger mr-1" @click="destroy">Delete</button>
 	</div>
@@ -40,12 +41,16 @@
  import Favorite from './Favorite.vue';
  import moment from 'moment';
  import atwho from '../mixins/mount.atwho.js';
+ import BestReply from './BestReply.vue';
  import errorHandler from '../mixins/axios.error.handler.js';
 
  export default {
      props: ['data'],
      mixins: [atwho, errorHandler],
-     components: { Favorite },
+     components: { Favorite, BestReply },
+     created () {
+	 window.events.$on('bestReplyMarked', id => this.unMarkAsBest(id)); 
+     },
      mounted () {
 	 this.initAtWho();
      },
@@ -53,24 +58,25 @@
          return {
              editing: false,
              id: this.data.id,
-             body: this.data.body
+             body: this.data.body,
+	     isBest: this.data.isBest,
+	     reply: this.data
          };
      },
      computed: {
+	 canMarkasBest () {
+	     return this.data.isBest == false;
+	 },
          ago() {
              return moment(this.data.created_at).fromNow() + '...';
-         },
-
-         signedIn() {
-             return window.Laravel.signedIn;
-         },
-         canUpdate() {
-             return this.authorize(user => this.data.user_id == user.id);
          },
 	 linkedBody() {
 	     return this.body.replace(/@([A-Za-z\.]+)/g, (match, string) => {
 		 return `<a href="/profiles/${string}">${match}</a>`;
 	     });
+	 },
+	 panelHeaderClass() {
+	     return this.isBest ? 'panel-success' : 'panel-default';
 	 }
      },
      methods: {
@@ -92,6 +98,14 @@
 		  })
 		  .catch((error) => this.handle(error));
 
+	 },
+	 unMarkAsBest (id) {
+	     this.isBest = !this.isBest;
+	     if (this.data.id != id) {
+		 this.canMarkAsBest = !this.canMarkAsBest;
+	     }
+
+	     return true;
 	 }
      }
  }

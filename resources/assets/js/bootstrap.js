@@ -29,12 +29,23 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  * for events that are broadcast by Laravel. Echo and event broadcasting
  * allows your team to easily build robust real-time web applications.
  */
-Vue.prototype.authorize = function(handler) {
+
+let authorizations = require('./authorizations');
+
+Vue.prototype.authorize = function(...params) {
     if (!window.Laravel.user) {
 	return false;
     }
-    return handler(window.Laravel.user);
+
+    if (typeof params[0] == 'string') {
+	return authorizations[params[0]](params[1]);
+    }
+    
+    return params[0](window.Laravel.user);
 };
+
+Vue.prototype.signedIn = window.Laravel.signedIn;
+
 // import Echo from 'laravel-echo'
 
 // window.Pusher = require('pusher-js');
