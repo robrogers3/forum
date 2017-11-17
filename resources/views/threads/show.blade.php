@@ -1,12 +1,15 @@
 @extends('layouts.app')
 @section('content')
-<div>
+    <div>
   <thread-view :data="{{$thread}}" inline-template>
     <div class="row">
       <div class="col-md-8">
 	  <thread-display
-	     :attributes="{{$thread}}"
-	     :channels="{{$channels}}"
+	      :attributes="{{$thread}}"
+	      :channels="{{$channels}}"
+	      @can('update', $thread)
+	      :updatable="true"
+	      @endcan
 	     ></thread-display>
 	<replies :thread="{{$thread}}" @added="repliesCount++" @removed="repliesCount--"></replies>
       </div>

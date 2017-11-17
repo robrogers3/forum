@@ -19,7 +19,6 @@ class ReplyPolicy
      */
     public function view(User $user, Reply $reply)
     {
-        //
     }
 
     /**

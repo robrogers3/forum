@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Thread;
+use App\Rules\Recaptcha;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -13,14 +14,27 @@ class CreateThreadsTest extends TestCase
 {
     use DatabaseMigrations;
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        app()->singleton(Recaptcha::class, function () {
+            $m = \Mockery::mock(Recaptcha::class);
+
+            $m->shouldReceive('passes')->andReturn(true);
+
+            return $m;
+        });
+    }
+    
     /** @test */
     public function an_authenticated_user_can_create_a_thread()
     {
-        $this->signIn();
+        $this->signIn()->withExceptionHandling();
 
         $thread = make('App\Thread');
         
-        $response = $this->post('/threads', $thread->toArray());
+        $response = $this->post('/threads', $thread->toArray() + ['g-recaptcha-response' => 'token']);
         
         $location = $response->headers->get('Location');
 
@@ -65,6 +79,15 @@ class CreateThreadsTest extends TestCase
     }
 
     /** @test */
+    public function a_thread_requires_recaptcha_validation()
+    {
+        unset(app()[Recaptcha::class]);
+        $this->withExceptionHandling();        
+        $this->publishThread(['g-recaptcha-response' => 'test'])
+                                                     ->assertSessionHasErrors('g-recaptcha-response');
+    }
+
+    /** @test */
     public function a_thread_requires_a_title()
     {
         $this->expectException('Illuminate\Validation\ValidationException');
@@ -87,13 +110,13 @@ class CreateThreadsTest extends TestCase
 
         $thread = create('App\Thread', ['title' => 'foo-title']);
 
-        $this->assertEquals('foo-title', $thread->fresh()->slug);
+        $this->assertEquals('foo-title', $thread->fresh()->slug, 'foo-ttile should be slug');
 
-        $this->post(route('threads'), $thread->toArray());
+        $this->post(route('threads'), $thread->toArray() + ['g-recaptcha-response' => 'token']);
 
         $this->assertTrue(Thread::whereSlug('foo-title-2')->exists());
 
-        $this->post(route('threads'), $thread->toArray());
+        $this->post(route('threads'), $thread->toArray() + ['g-recaptcha-response' => 'token']);
 
         $this->assertTrue(Thread::whereSlug('foo-title-3')->exists());
     }
@@ -107,7 +130,7 @@ class CreateThreadsTest extends TestCase
 
         $this->assertEquals('some-title-24', $thread->fresh()->slug);
 
-        $this->post(route('threads'), $thread->toArray());
+        $this->post(route('threads'), $thread->toArray() + ['g-recaptcha-response' => 'token']);
 
         $this->assertTrue(Thread::whereSlug('some-title-24-2')->exists());
 
@@ -116,6 +139,7 @@ class CreateThreadsTest extends TestCase
     /** @test */
     public function a_thread_requires_a_valid_channel()
     {
+
         $this->withExceptionHandling();
         $channel = factory('App\Channel', 2)->create()->first();
 
@@ -126,9 +150,10 @@ class CreateThreadsTest extends TestCase
         $this->publishThread(['channel_id' => 999])
             ->assertSessionHasErrors('channel_id');
         
-        // $this->expectException('Illuminate\Validation\ValidationException');
-        // $this->publishThread(['channel_id' => null])
-        //      ->assertSessionHasErrors('channel_id');
+        //$this->expectException('Illuminate\Validation\ValidationException');
+         $this->publishThread(['channel_id' => null])
+                                            ->assertSessionHasErrors('channel_id');
+
     }
 
     /** @test */

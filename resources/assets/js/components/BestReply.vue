@@ -40,7 +40,7 @@
 		  .catch(error => this.handle(error));
 	 },
 	 toggleBest ()  {
-	     this.is_best = !this.is_best;
+	     this.is_best = this.is_best ? false : true;
 	     if (this.is_best) {
 		 window.events.$emit('bestReplyMarked', this.reply.id); 
 	     }

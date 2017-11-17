@@ -35,7 +35,6 @@ class SubscribeToThreadsTest extends TestCase
     public function a_thread_can_be_unsubscribed_from()
     {
         $this->signIn();
-        $this->runDatabaseMigrations();
 
         $thread = create('App\Thread');
 

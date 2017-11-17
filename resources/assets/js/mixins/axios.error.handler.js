@@ -25,7 +25,7 @@ export default {
 		//used to handle a teapot message 418
 		//can be a random exception you throw as say MessagingException
 		if (error.response.status == 418 && error.response.data.message) {
-		    return flash(error.response.data.massage, 'danger');
+		    return flash(error.response.data.message, 'danger');
 		}
 		
 	    }

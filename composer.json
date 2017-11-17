@@ -6,16 +6,19 @@
     "type": "project",
     "repositories": [
 	{
-        "type": "path",
-        "url": "/Users/robrogers/projects/laravel-jsonaware-exception-handler"
+            "type": "path",
+            "url": "/Users/robrogers/projects/laravel-jsonaware-exception-handler"
 	}
     ],
     "require": {
         "php": ">=5.6.4",
+        "algolia/algoliasearch-client-php": "^1.23",
         "barryvdh/laravel-debugbar": "^2.3",
         "guzzlehttp/guzzle": "^6.3",
         "intervention/image": "^2.4",
-        "laravel/framework": "5.4.*",
+        "kitetail/zttp": "^0.3.0",
+        "laravel/framework": "5.5.*",
+        "laravel/scout": "^3.0",
         "laravel/tinker": "~1.0",
         "predis/predis": "^1.1",
         "robrogers3/laravel-jsonaware-exception-handler": "dev-master"
@@ -24,7 +27,7 @@
         "filp/whoops": "^2.1",
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": "~5.7"
+        "phpunit/phpunit": "~6.0"
     },
     "autoload": {
         "classmap": [
@@ -44,5 +47,12 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "optimize-autoloader": true
+    },
+    "scripts": {
+	"post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover"
+	]
     }
+    
 }

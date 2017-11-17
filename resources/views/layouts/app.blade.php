@@ -27,6 +27,7 @@
 			 ]);
 		      !!};
     </script>
+    @yield('head')
     </head>
     <body>
         <div id="app">
@@ -35,6 +36,12 @@
 
 	    <div class="container">
 		<token-reset></token-reset>
+		@if (session('message'))
+	
+          	<div class="alert alert-{{ session('type') }}">
+			{{session('message')}}
+		    </div>
+		@endif 
 
 		@yield('content')
 		<flash message="{{session('flash')}}"></flash>

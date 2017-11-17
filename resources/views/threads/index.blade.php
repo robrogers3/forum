@@ -1,16 +1,10 @@
 @extends('layouts.app')
 @section('content')
+    <h1>session {{Session::get('foo')}}</h1>
     <div class="row">
         <div class="col-md-8">
-            <div class="panel panel-default">
-                <div class="panel-heading">Threads Forum!!</div>
-                <div class="panel-body">
-                    @foreach($threads as $thread)
-			@include('threads._list')
-                    @endforeach
-                    {{$threads->links()}}
-                </div>
-            </div>
+	    @include('threads._list')
+	    {{$threads->links()}}
 	</div>
 	<div class="col-md-4">
 	    @if (count($trending))

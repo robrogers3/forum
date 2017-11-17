@@ -67,16 +67,6 @@ class ManageThreadsTest extends TestCase
             ->assertSessionHasErrors('body');
     }
 
-    /** @test */
-    public function a_thread_requires_a_valid_channel()
-    {
-        $channel = factory('App\Channel', 2)->create()->first();
-        
-        // $this->publishThread(['channel_id' => null])
-        //      ->assertSessionHasErrors('channel');
-
-        $response = $this->publishThread(['channel_id' => $channel]);
-    }
 
     /** @test */
     public function authorized_users_can_delete_a_thread()
@@ -120,27 +110,7 @@ class ManageThreadsTest extends TestCase
         $this->delete($thread->path())->assertStatus(403);
     }
 
-    /** @test */
-    public function a_thread_can_be_updated()
-    {
-        $this->withExceptionHandling()->signIn();
-        //        $this->signIn();
-        $thread = create('App\Thread');
-
-        $this->assertEquals($thread->title, Thread::first()->title);
-        
-        $thread->title = 'Updated via patch';
-
-        $data = $thread->toArray();
-
-        $data['channel'] = $thread->channel->name;
-        
-        $this->patch($thread->path, $data)
-            ->assertStatus(200)->assertSee($thread->title);
-        
-        $this->assertEquals('Updated via patch', Thread::first()->title);
-    }
-
+    
     /** @test */
     public function a_threads_channel_can_be_updated()
     {

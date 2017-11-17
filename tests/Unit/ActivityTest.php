@@ -14,8 +14,6 @@ class ActivityTest extends TestCase
     /** @test */
     public function it_records_activity_when_a_thread_is_created()
     {
-        $this->runDatabaseMigrations();
-        
         $this->signIn();
 
         $thread = create('App\Thread');

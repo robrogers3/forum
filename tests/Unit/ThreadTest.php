@@ -205,8 +205,6 @@ class ThreadTest extends TestCase
         /** @test */
     public function a_thread_can_be_locked()
     {
-        $this->runDatabaseMigrations();
-
         $thread = create('App\Thread');
 
         $this->assertFalse($thread->locked);

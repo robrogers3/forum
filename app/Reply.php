@@ -42,9 +42,29 @@ class Reply extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function XgetThreadAttribute()
+    {
+        return $this->thread();
+    }
+
     public function thread()
     {
-        return $this->belongsTo(Thread::class);
+        //return Thread::whereRaw('id = ?', [$this->thread_id])->get()->first();
+        
+        $relation =  $this->belongsTo(Thread::class);
+
+        return $relation;
+
+        $query = $relation->getQuery()->getQuery();
+
+        $query->orWhere(function($q) {
+            $q->whereNull('threads.id');
+        });
+        dmup($query->wheres);
+        
+        return $relation;
+        return $relation->setQuery($query);
     }
 
     public function path()

@@ -100,10 +100,14 @@
 
 	 },
 	 unMarkAsBest (id) {
-	     this.isBest = !this.isBest;
-	     if (this.data.id != id) {
-		 this.canMarkAsBest = !this.canMarkAsBest;
-	     }
+
+	     if (this.data.id == id) {
+		 this.isBest = true;
+		 this.canMarkAsBest = false;
+		 return true;
+	     } 
+	     this.isBest = false
+	     this.canMarkAsBest = true;
 
 	     return true;
 	 }

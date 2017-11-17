@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-
+use Gate;
 use App\Thread;
 use App\Trending;
 use App\Channel;
 use App\Filters\ThreadFilters;
+use App\Rules\Recaptcha;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use RobRogers3\LaravelExceptionHandler\Exceptions\MessagingException;
+
 class ThreadsController extends Controller
 {
     public function __construct()
@@ -25,7 +27,7 @@ class ThreadsController extends Controller
     public function index(Channel $channel, ThreadFilters $filters, Trending $trending)
     {
         $threads = $this->getThreads($channel, $filters);
-	
+        
         if (request()->wantsJson()) {
             return $threads->get();
         }
@@ -51,13 +53,14 @@ class ThreadsController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Recaptcha $recaptcha)
     {
         $this->validate($request, [
             'channel' => 'required_without:channel_id',
             'channel_id' => 'required_without:channel|exists:channels,id',
             'title' => 'required|spamfree',
             'body' => 'required|spamfree',
+            'g-recaptcha-response' => [$recaptcha],
         ]);
 
         
@@ -70,6 +73,8 @@ class ThreadsController extends Controller
             ]);
         }
 
+
+        
         $thread = Thread::create([
             'user_id' => auth()->id(),
             'channel_id' => $channel->id,
@@ -77,7 +82,7 @@ class ThreadsController extends Controller
             'body'  => request('body')
         ]);
 
-        return redirect($thread->path());
+        return redirect($thread->path())->with('flash', 'good job');
     }
 
     /**
@@ -121,19 +126,13 @@ class ThreadsController extends Controller
      */
     public function update($channelId, Thread $thread)
     {
-        $this->validate(request(), [
-            'title' => 'required',
-            'body' => 'required',
-            'channel' => 'required'
-        ]);
+        $this->authorize('update', $thread);
 
-        $channel = Channel::whereName(request('channel'))->firstOrFail();
-
-        $data = request()->only('title', 'body');
-
-        $data['channel_id'] = $channel->id;
-
-        $thread->update($data);
+        $thread->update(
+            $data = request()->validate([
+                'title' => 'required',
+                'body' => 'required'
+            ]));
 
         return response($data);
     }
@@ -146,11 +145,11 @@ class ThreadsController extends Controller
      */
     public function destroy($channel, Thread $thread)
     {
-        $this->authorize('update', $thread);
+        $this->authorize('delete', $thread);
 
         $thread->delete();
 
-        return response(['path'=>'threads'], 200);
+        return response(['path'=>'/threads'], 200);
     }
 
     protected function getThreads(Channel $channel, $filters)

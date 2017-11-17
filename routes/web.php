@@ -1,5 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use App\Thread;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -10,8 +12,35 @@ use Illuminate\Support\Facades\Log;
 | contains the "web" middleware group. Now create something great!
 |
 */
-use App\Thread;
+use Illuminate\Support\Arr;
+Route::get('register/{lang?}', function($lang = 'en') {
+    session()->pull('foo');
+
+    $languages = ['fr','en'];
+    $currentLang = Arr::last(explode('/', request()->path()));//this assumes every route has a lang, so ou need to check here.
+    $currentBaseRoute = str_replace("{lang?}", '', request()->path());
+    $routesByLanguage = [];
+    foreach($languages as $language) {
+        $routesByLanguage[$language] = $currentBaseRoute . "/$language";
+    }
+    
+    return "view(pages.{$lang}.fooview)";
+    });
 Route::get('csv', function() {
+    request()->session()->put('foo', 'baz');
+    dump(session('foo'));
+    return;
+    $ts = Thread::all()->take(6);
+
+    $mt = $ts->map(function($t) {
+        return collect([
+            'title' => $t->title,
+            'body' => $t->body
+        ]);
+    })->filter(function($t) {
+        return $t['title'] == 'goose';
+    });
+    return $mt;
     $f = fopen('php://memory', 'w+');
     $threads = Thread::get(['title', 'body', 'path']);
     $header = array_keys($threads->first()->toArray());
@@ -38,6 +67,7 @@ Route::post('resetToken', function() {
 });
 
 Route::get('/', function () {
+            dump(session()->all());
     return view('welcome');
 })->middleware('throttle:2,1');
 
@@ -51,6 +81,8 @@ Route::get('/profiles/{user}', 'ProfilesController@show')->name('profile');
 Route::post('/channels', 'ChannelController@store')->middleware('auth');
 Route::post('locked-threads/{thread}', 'LockThreadsController@store')->middleware('admin')->name('locked.threads.store');
 Route::delete('locked-threads/{thread}', 'LockThreadsController@destroy')->middleware('admin')->name('locked.threads.destroy');
+
+Route::get('/threads/search', 'SearchController@show');
 Route::get('/threads/', 'ThreadsController@index')->name('threads');
 Route::get('/threads/create', 'ThreadsController@create');
 Route::post('/threads', 'ThreadsController@store')->middleware('must-be-confirmed');

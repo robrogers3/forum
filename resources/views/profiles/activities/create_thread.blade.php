@@ -1,8 +1,8 @@
 @component('profiles.activities.activity')
 
 @slot('heading')
-{{$profileUser->name}} replied to 
-<a href="{$activity->subject->path()}}">
+{{$profileUser->name}} created a thread
+<a href="{{$activity->subject->path()}}">
     {{ $activity->subject->title }}
 </a>
 

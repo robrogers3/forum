@@ -16,8 +16,6 @@ class LockThreadsTest extends TestCase
     {
         $this->signIn();
 
-        $this->runDatabaseMigrations();
-
         $this->withExceptionHandling();
 
         $thread = create('App\Thread');

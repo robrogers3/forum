@@ -5,7 +5,7 @@
 		<div class="level btw">
 		    <avatar
 			class="mr-1"
-			       :src="creator.avatar_path"
+			:src="creator.avatar_path"
 		    ></avatar>
 
 		    <h4 class="flex" v-text="title">title??</h4>
@@ -29,17 +29,18 @@
 		<h4>Edit your post</h4>
 	    </div>
 	    <div class="panel-body">
-		<form v-if="editing" @submit.prevent="updateThread" class="thread-form">
+		<form @submit.prevent="updateThread" class="thread-form">
 		    <channel-select @changed="updateChannelName" :channels="channels" :old="channelName"></channel-select>
 		    <div class="form-group">
 			<label for="title">Title</label>
-			<input class="form-control" id="title" v-model="title" name="title" value="" type="text">
+			<input class="form-control" id="title" v-model="form.title" name="title" type="text">
 		    </div>
 		    <div class="form-group">
 			<label for="title">Body</label>
-			<textarea class="form-control" name="body" v-model="body">nothing here?</textarea>
+			<textarea class="form-control" name="body" v-model="form.body">nothing here?</textarea>
 		    </div>
 		    <button class="btn btn-primary">Update</button>
+		    <button @click="cancel" class="btn btn-default">Cancel</button>
 		</form>
 	    </div>
 	</div>
@@ -51,13 +52,17 @@
  import moment from 'moment';
  import ChannelSelect from './ChannelSelect.vue';
  export default {
-     props: ['attributes', 'channels'],
+     props: ['attributes', 'channels', 'updatable'],
      mixins: [errorHandler],
      components: {ChannelSelect},
      data () {
 	 return {
 	     body: this.attributes.body,
 	     title: this.attributes.title,
+	     form: {
+		 title: this.attributes.title,
+		 body: this.attributes.body
+	     },
 	     channel: this.attributes.channel,
 	     channelName: this.attributes.channel.name,
 	     metaData: this.attributes,
@@ -68,6 +73,10 @@
      methods: {
 	 updateChannelName (name) {
 	     this.channelName = name;
+	 },
+	 cancel () {
+	     this.form.title = this.title;
+	     this.form.body = this.body;
 	 },
 	 deleteThread () {
 	     axios.delete(this.metaData.path)
@@ -84,6 +93,8 @@
 	     })
 		  .then(response => {
 		      this.editing = false;
+		      this.title = this.form.title;
+		      this.body = this.form.body;
 		      if (this.channeName != this.channel.name) {
 			  window.history.pushState({change: 'channel'}, 'not used', window.location.pathname.replace(this.channel.name, this.channelName));
 		      }
@@ -95,7 +106,7 @@
              return window.Laravel.signedIn;
          },
          canUpdate() {
-	     return this.authorize(user => this.creator.id == user.id);
+	     return this.authorize(user => this.creator.id == user.id || this.updatable);
          }
      },
      computed: {

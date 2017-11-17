@@ -23,6 +23,8 @@ class JsonExceptionsTest extends TestCase
             'body' => 'Yahoo Customer Support'
         ]);
 
+        $this->assertTrue(true);
+
     }
 
     /** @test */

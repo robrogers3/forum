@@ -10,7 +10,6 @@ class ThreadPolicy
 {
     use HandlesAuthorization;
 
-
     /**
      * Determine whether the user can view the thread.
      *
@@ -18,9 +17,10 @@ class ThreadPolicy
      * @param  \App\Thread  $thread
      * @return mixed
      */
-    public function view(User $user, Thread $thread)
+    public function view(User $user, $thread)
     {
-        //
+        dd(__METHOD__);
+        return true;
     }
 
     /**
@@ -42,8 +42,7 @@ class ThreadPolicy
      * @return mixed
      */
     public function update(User $user, Thread $thread)
-    {
-
+    { 
         return $user->id == $thread->user_id;
     }
 
@@ -56,6 +55,6 @@ class ThreadPolicy
      */
     public function delete(User $user, Thread $thread)
     {
-        //
+        return $user->id == $thread->user_id;
     }
 }

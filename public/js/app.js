@@ -4931,7 +4931,7 @@ module.exports = {
 				//used to handle a teapot message 418
 				//can be a random exception you throw as say MessagingException
 				if (error.response.status == 418 && error.response.data.message) {
-					return flash(error.response.data.massage, 'danger');
+					return flash(error.response.data.message, 'danger');
 				}
 			}
 			return flash('We could not handle your request', 'danger');
@@ -29964,10 +29964,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 												});
 								},
 								unMarkAsBest: function unMarkAsBest(id) {
-												this.isBest = !this.isBest;
-												if (this.data.id != id) {
-																this.canMarkAsBest = !this.canMarkAsBest;
+
+												if (this.data.id == id) {
+																this.isBest = true;
+																this.canMarkAsBest = false;
+																return true;
 												}
+												this.isBest = false;
+												this.canMarkAsBest = true;
 
 												return true;
 								}
@@ -30147,74 +30151,85 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-				props: ['attributes', 'channels'],
-				mixins: [__WEBPACK_IMPORTED_MODULE_0__mixins_axios_error_handler_js__["a" /* default */]],
-				components: { ChannelSelect: __WEBPACK_IMPORTED_MODULE_2__ChannelSelect_vue___default.a },
-				data: function data() {
-								return {
-												body: this.attributes.body,
-												title: this.attributes.title,
-												channel: this.attributes.channel,
-												channelName: this.attributes.channel.name,
-												metaData: this.attributes,
-												creator: this.attributes.creator,
-												editing: false
-								};
-				},
+	props: ['attributes', 'channels', 'updatable'],
+	mixins: [__WEBPACK_IMPORTED_MODULE_0__mixins_axios_error_handler_js__["a" /* default */]],
+	components: { ChannelSelect: __WEBPACK_IMPORTED_MODULE_2__ChannelSelect_vue___default.a },
+	data: function data() {
+		return {
+			body: this.attributes.body,
+			title: this.attributes.title,
+			form: {
+				title: this.attributes.title,
+				body: this.attributes.body
+			},
+			channel: this.attributes.channel,
+			channelName: this.attributes.channel.name,
+			metaData: this.attributes,
+			creator: this.attributes.creator,
+			editing: false
+		};
+	},
 
-				methods: {
-								updateChannelName: function updateChannelName(name) {
-												this.channelName = name;
-								},
-								deleteThread: function deleteThread() {
-												var _this = this;
+	methods: {
+		updateChannelName: function updateChannelName(name) {
+			this.channelName = name;
+		},
+		cancel: function cancel() {
+			this.form.title = this.title;
+			this.form.body = this.body;
+		},
+		deleteThread: function deleteThread() {
+			var _this = this;
 
-												axios.delete(this.metaData.path).then(function (response) {
-																window.location.href = response.data.path;
-												}).catch(function (error) {
-																return _this.handle(error);
-												});
-								},
-								updateThread: function updateThread() {
-												var _this2 = this;
+			axios.delete(this.metaData.path).then(function (response) {
+				window.location.href = response.data.path;
+			}).catch(function (error) {
+				return _this.handle(error);
+			});
+		},
+		updateThread: function updateThread() {
+			var _this2 = this;
 
-												axios.patch(this.metaData.path, {
-																title: this.title,
-																body: this.body,
-																channel: this.channelName
-												}).then(function (response) {
-																_this2.editing = false;
-																if (_this2.channeName != _this2.channel.name) {
-																				window.history.pushState({ change: 'channel' }, 'not used', window.location.pathname.replace(_this2.channel.name, _this2.channelName));
-																}
-												}).catch(function (error) {
-																return _this2.handle(error);
-												});
-								},
-								signedIn: function signedIn() {
-												return window.Laravel.signedIn;
-								},
-								canUpdate: function canUpdate() {
-												var _this3 = this;
-
-												return this.authorize(function (user) {
-																return _this3.creator.id == user.id;
-												});
-								}
-				},
-				computed: {
-								created_at: function created_at() {
-												var now = __WEBPACK_IMPORTED_MODULE_1_moment___default()();
-												var then = __WEBPACK_IMPORTED_MODULE_1_moment___default()(this.metaData.created_at);
-												var diff = now - then;
-												return __WEBPACK_IMPORTED_MODULE_1_moment___default.a.duration(diff).humanize();
-								}
+			axios.patch(this.metaData.path, {
+				title: this.title,
+				body: this.body,
+				channel: this.channelName
+			}).then(function (response) {
+				_this2.editing = false;
+				_this2.title = _this2.form.title;
+				_this2.body = _this2.form.body;
+				if (_this2.channeName != _this2.channel.name) {
+					window.history.pushState({ change: 'channel' }, 'not used', window.location.pathname.replace(_this2.channel.name, _this2.channelName));
 				}
+			}).catch(function (error) {
+				return _this2.handle(error);
+			});
+		},
+		signedIn: function signedIn() {
+			return window.Laravel.signedIn;
+		},
+		canUpdate: function canUpdate() {
+			var _this3 = this;
+
+			return this.authorize(function (user) {
+				return _this3.creator.id == user.id || _this3.updatable;
+			});
+		}
+	},
+	computed: {
+		created_at: function created_at() {
+			var now = __WEBPACK_IMPORTED_MODULE_1_moment___default()();
+			var then = __WEBPACK_IMPORTED_MODULE_1_moment___default()(this.metaData.created_at);
+			var diff = now - then;
+			return __WEBPACK_IMPORTED_MODULE_1_moment___default.a.duration(diff).humanize();
+		}
+	}
 });
 
 /***/ }),
@@ -51594,7 +51609,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }), _vm._v(" "), _c('h4', [_vm._v("Edit your post")])], 1), _vm._v(" "), _c('div', {
     staticClass: "panel-body"
-  }, [(_vm.editing) ? _c('form', {
+  }, [_c('form', {
     staticClass: "thread-form",
     on: {
       "submit": function($event) {
@@ -51620,23 +51635,22 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     directives: [{
       name: "model",
       rawName: "v-model",
-      value: (_vm.title),
-      expression: "title"
+      value: (_vm.form.title),
+      expression: "form.title"
     }],
     staticClass: "form-control",
     attrs: {
       "id": "title",
       "name": "title",
-      "value": "",
       "type": "text"
     },
     domProps: {
-      "value": (_vm.title)
+      "value": (_vm.form.title)
     },
     on: {
       "input": function($event) {
         if ($event.target.composing) { return; }
-        _vm.title = $event.target.value
+        _vm.form.title = $event.target.value
       }
     }
   })]), _vm._v(" "), _c('div', {
@@ -51649,25 +51663,30 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     directives: [{
       name: "model",
       rawName: "v-model",
-      value: (_vm.body),
-      expression: "body"
+      value: (_vm.form.body),
+      expression: "form.body"
     }],
     staticClass: "form-control",
     attrs: {
       "name": "body"
     },
     domProps: {
-      "value": (_vm.body)
+      "value": (_vm.form.body)
     },
     on: {
       "input": function($event) {
         if ($event.target.composing) { return; }
-        _vm.body = $event.target.value
+        _vm.form.body = $event.target.value
       }
     }
   }, [_vm._v("nothing here?")])]), _vm._v(" "), _c('button', {
     staticClass: "btn btn-primary"
-  }, [_vm._v("Update")])], 1) : _vm._e()])]) : _vm._e()])
+  }, [_vm._v("Update")]), _vm._v(" "), _c('button', {
+    staticClass: "btn btn-default",
+    on: {
+      "click": _vm.cancel
+    }
+  }, [_vm._v("Cancel")])], 1)])]) : _vm._e()])
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
@@ -61814,7 +61833,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 												});
 								},
 								toggleBest: function toggleBest() {
-												this.is_best = !this.is_best;
+												this.is_best = this.is_best ? false : true;
 												if (this.is_best) {
 																window.events.$emit('bestReplyMarked', this.reply.id);
 												}

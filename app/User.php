@@ -9,7 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     use Notifiable;
-
+    
     /**
      * The attributes that are mass assignable.
      *
@@ -35,6 +35,12 @@ class User extends Authenticatable
     protected $appends = [
         'isAdmin'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+    }
     
     public function threads()
     {
@@ -133,4 +139,5 @@ class User extends Authenticatable
     {
         return $this->name == 'RobRogers';
     }
+
 }

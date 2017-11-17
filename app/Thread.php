@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Support\Facades\Db;
 use Carbon\Carbon;
 use App\Filters\ThreadFilters;
 use App\Traits\RecordsActivity;
@@ -11,11 +12,11 @@ use App\Events\ThreadReceivedNewReply;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 class Thread extends Model
 {
-    //use ModelPath;
-    use RecordsActivity;
+    use RecordsActivity, Searchable;
 
     protected $fillable = [
         'user_id',
@@ -44,6 +45,27 @@ class Thread extends Model
         static::created(function ($thread) {
             $thread->update(['slug' => str_slug($thread->title)]);
         });
+    }
+
+    public function getFooAttribute()
+    {
+            
+        dump($gt->count());
+        return 'foo done';
+        $thread = static::find(10);
+        $ids = $thread->replies->pluck('id');
+        $q =  static::whereIn('id', function($query) use ($ids) {
+            $query->select('thread_id')->from('replies')->whereIn('id', $ids->toArray());
+        })->where('title', 'test thread updated');
+        // dump($q->getBindings());
+        // dump($q->toSql());
+        return $q->exists();
+    
+        //     $query;
+        // });
+            
+        return $query->get();
+
     }
 
     public function getRouteKeyName()
@@ -108,8 +130,11 @@ class Thread extends Model
 
     public function subscriptions()
     {
-        return $this->hasMany(ThreadSubscription::class);
+        $relation = $this->hasMany(ThreadSubscription::class);
+        return $relation;
     }
+
+
     
     public function subscribe($userId = null)
     {
